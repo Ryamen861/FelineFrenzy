@@ -1,0 +1,51 @@
+# all of the things to buy in the store (in order of price, lowest -> highest)
+- plastic bottle
+- scratchy cardboard box
+- plushy toy
+- ball around and around
+- feather on a string
+- tube
+- cat palace (set of boxes, high up places)
+- catnip forest
+
+Pre-Code Plan Breakdown
+- implement random cat visiting mechanism
+    - make rectangles onto the screen for the toys to be
+        - make maybe 4-5 max spaces
+        - in these rectangles, the toy images can be placed
+- implement currency
+    - when the toy is bought, do a "are you sure you will spend {this much}"?
+- set up the shop, stock the shop
+    - (when item button (in store) is clicked:
+        - see if it is buyable
+        - if it is, ask for confirmation, then buy
+        - if it isn't, then say sorry, they can't)
+- cat book to see all of the cats met so far
+- daily math puzzle for coins
+- save changes
+
+ESTIMATED TIMELINE
+    day1- find graphics, set up the screen
+    day2- set up buttons to navigate home<-->store
+    day3- Added items to store
+    day4- worked on functionality of random cats coming and going
+    day5- revised cat-visiting mechanism with pygame.time.Clock()
+    day6- status (coins, XP, level) and how they are changed by cats visiting
+    day7- buying items from the store, asking for confirmation, attempt at adding 'where to put' functionality
+    day8- make spot Objects and SpotManager, revise when to ask the confirmation window
+    day9- make Cat Object, finish 'where to put' functionality, make icons/images transparent
+        (changing these into objects took a lot of work, revising and going over logic, getting stuck,
+           I should have done this from the start. I nearly did, but I had trouble setting out the layout of the class and
+           how to control it, so I didn't)
+    day10 (1/3/23)- figure out the weird infinite while loop in insert_toy (modify the SpotManager class, add a new func)
+        Also added the feature where when you buy something and place it at a spot where there is already a toy, then
+        replace the old toy with the new one
+        Also added a feature where it checks if you already bought something or not
+
+    day11 (2/12/23) implement enums, match statements for state of the GUI
+        Also implemented Cat Book
+
+    day12 (3/5/23) added the level label
+        - debugging labels
+        - made check_new_level more accurate
+
