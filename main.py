@@ -263,11 +263,12 @@ def save_changes():
                 "xp": XP,
                 "level": LEVEL,
                 "unlocked_cats": CM.unlocked_cats,
-                "items on set": [i for i in CM.SM.curr_items],
-                "bought items": [i for i in CM.SM.unlocked_items],
-                "p_name_to_s_object_link": [i for i in catmanager.return_place_name_to_object_link().items],
-                "c_item_to_p_name_link": [i for i in CM.SM.curr_item_place_name_link.items()]
+                "items on set": CM.SM.curr_items,
+                "bought items": CM.SM.unlocked_items,
+                "p_name_to_s_object_link": catmanager.return_place_name_to_object_link(),
+                "c_item_to_p_name_link": CM.SM.curr_item_place_name_link,
             }
+            
     except FileNotFoundError:
         # if there is no file, make the file and run this again
         with open("Logs.saved_changes.json", "w"):
