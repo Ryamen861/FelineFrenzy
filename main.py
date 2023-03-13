@@ -428,9 +428,8 @@ def check_new_level():
 
     for level in LEVELS:
         if XP >= level:
-            next_index = LEVELS.index(level) + 1
-            if XP < LEVELS[next_index]:
-                LEVEL = next_index  # it should be the index, but index start at 0, so plus 1.
+            LEVEL = LEVELS.index(level)
+            LEVEL += 1
         else:
             break
 
