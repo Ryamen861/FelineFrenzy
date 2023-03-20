@@ -141,6 +141,9 @@ class CatManager:
         if len(self.unlocked_cats) < 8:
             newly_unlocked_cat = self.all_cats[len(self.unlocked_cats)]
             self.unlocked_cats.append(newly_unlocked_cat)
+            return newly_unlocked_cat.name
+        else:
+            return "no more cats"
 
     def leave_cat(self, curr_time):
         profit = None

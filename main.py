@@ -17,6 +17,7 @@ class WindowState(Enum):
     ALREADY_BOUGHT_WIN = 5
     NOT_ENOUGH_MONEY_WIN = 6
     CAT_BOOK = 7
+    NEXT_LEVEL = 8
 
 
 win_state = WindowState.HOME
@@ -25,6 +26,8 @@ FONT = pygame.font.SysFont("comicsans", 40)
 S_FONT = pygame.font.SysFont("comicsans", 29)
 WIDTH, HEIGHT = 900, 600
 FPS = 20
+
+flag_event = []
 
 LEVEL = 0
 LEVELS = [20, 40, 80, 140, 220, 320, 440, 580, 700]
@@ -268,7 +271,7 @@ def save_changes():
                 "p_name_to_s_object_link": catmanager.return_place_name_to_object_link(),
                 "c_item_to_p_name_link": CM.SM.curr_item_place_name_link,
             }
-            
+
     except FileNotFoundError:
         # if there is no file, make the file and run this again
         with open("Logs.saved_changes.json", "w"):
@@ -405,7 +408,10 @@ def actual_buy(decider):
         cost = PRICES[item]
 
         FISH_COINS -= cost
-        XP += 5
+        XP += 3
+        update_XP()
+        update_coins()
+    
         home_button_func()
 
         # set up the screen so that the person can choose where to put the new toy
@@ -435,19 +441,39 @@ def check_new_level():
 
     # there has been a level up
     if LEVEL > previous_level:
-        new_level_congratulations(LEVEL)
-        update_level()
-        FISH_COINS += 10
-        CM.next_level_cat()
+
+        # if nothing else is going on right now
+        # (we don't want to interrupt an item placing process)
+        if win_state == WindowState.HOME:
+            unlocked_cat = CM.next_level_cat()
+            new_level_congratulations(LEVEL, unlocked_cat)
+            update_level()
+            FISH_COINS += 10
+            update_coins()
+            
+        else:
+            # put it in line to be displayed later on when there is a chance
+            flag_event.append(LEVEL)
 
 
-def new_level_congratulations(level):
-    # new window that congratulates
-    # - new level
-    # let them know they have received a few fish_coins
-    # let them know they have unlocked a new cat
-    # make an ok button for this
-    pass
+def new_level_congratulations(level, unlocked_cat):
+    global win_state
+    win_state = WindowState.NEXT_LEVEL
+    print("new level")
+    pygame.draw.rect(WIN, NAVY, store_confirm_window)
+    new_cat_text = f"Look out for {unlocked_cat}" if unlocked_cat != "no more cats" else "No more cats to unlock!"
+
+    new_level_text = S_FONT.render(f"New level unlocked!", True, WHITE)
+    welcome_text = S_FONT.render(f"Welcome to level {level}!", True, WHITE)
+    receive_text = S_FONT.render(f"Coins + 10", True, WHITE)
+    new_cat_alert_text = S_FONT.render(new_cat_text, True, WHITE)
+
+    WIN.blit(new_level_text, (WIDTH / 2 - new_level_text.get_width() / 2, 150))
+    WIN.blit(welcome_text, (WIDTH / 2 - welcome_text.get_width() / 2, new_level_text.get_height() + 150 + 5))
+    WIN.blit(receive_text, (WIDTH / 2 - receive_text.get_width() / 2, 150 + new_level_text.get_height() + welcome_text.get_height() + 5))
+    WIN.blit(new_cat_alert_text, (WIDTH / 2 - new_cat_alert_text.get_width() / 2, 150 + receive_text.get_height() + new_level_text.get_height() + welcome_text.get_height() + 5))
+
+    next_level_button.draw()
 
 
 # create all the buttons (but don't draw them yet)
@@ -483,6 +509,7 @@ downhill_button = Button(720, 422, place_image, WIN, lambda: plus_button_func("d
 
 # for not enough money window/you already bought window
 ok_button = Button(WIDTH/2 - ok_text.get_width()/2, 250, ok_text, WIN, store_button_func)
+next_level_button = Button(WIDTH/2 - ok_text.get_width()/2, 320, ok_text, WIN, home_button_func)
 
 
 def main():
@@ -499,8 +526,6 @@ def main():
     while run:
         clock.tick(FPS)
         time_passed_ms += clock.get_time()
-        previous_XP = XP
-        previous_coins = FISH_COINS
 
         match win_state:
             case WindowState.HOME:
@@ -538,6 +563,9 @@ def main():
             case WindowState.NOT_ENOUGH_MONEY_WIN:
                 ok_button.check_click()
 
+            case WindowState.NEXT_LEVEL:
+                next_level_button.check_click()
+
         # make a new cat based on T/F
         new_make_val = CM.make_new_cat(time_passed_ms)
         if type(new_make_val) == int:
@@ -560,9 +588,12 @@ def main():
 
         check_new_level()
 
-        # update the coins if there has been a change
-        if previous_coins != FISH_COINS:
-            update_coins()
+        # check the flag event
+        if win_state == WindowState.HOME:
+            if len(flag_event) > 0:
+                level = flag_event[0]
+                new_level_congratulations(level, CM.next_level_cat())
+                flag_event.pop(0)
 
         for event in pygame.event.get():
 
