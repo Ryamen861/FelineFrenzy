@@ -459,7 +459,6 @@ def check_new_level():
 def new_level_congratulations(level, unlocked_cat):
     global win_state
     win_state = WindowState.NEXT_LEVEL
-    print("new level")
     pygame.draw.rect(WIN, NAVY, store_confirm_window)
     new_cat_text = f"Look out for {unlocked_cat}" if unlocked_cat != "no more cats" else "No more cats to unlock!"
 

@@ -48,4 +48,4 @@ ESTIMATED TIMELINE
     day12 (3/5/23) added the level label
         - debugging labels
         - made check_new_level more accurate
-
+    day13 (3/19/23) implemented the new_level_congratulations functionality
