@@ -49,3 +49,6 @@ ESTIMATED TIMELINE
         - debugging labels
         - made check_new_level more accurate
     day13 (3/19/23) implemented the new_level_congratulations functionality
+    day14 (10/10/23) New icon for window, docstrings, 
+
+    ADD MUSIC!

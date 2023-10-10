@@ -166,9 +166,8 @@ class CatManager:
                         spot_object.is_filled = False
                         break
 
-                # the cat pays money
-                profit = 0
-                profit += random.randint(0, 80)
+                # the cat gives a tip
+                profit = random.randint(0, 10)
 
         # if profit == None, then nothing changed, if it is zero to 80, then a cat left
         return profit
@@ -187,8 +186,6 @@ class CatManager:
                             # print("...looking for a cat...")
                             new_cat = random.choice(self.unlocked_cats)
                             # new cat is a cat object
-
-                            # print(f"unlocked cats = {self.unlocked_cats}\ncurrent cats {self.current_cats}")
 
                             # if the cat is not already one of the cats meant to be on screen
                             if new_cat not in self.current_cats:
@@ -211,8 +208,7 @@ class CatManager:
                                 self.current_cats.append(new_cat)
 
                                 # decide how long the cat will stay there, multiplying by 1000 bc pygame takes it in milliseconds
-                                # is should be (30 * 1000, 1000 * 1000)
-                                new_cat.stay_time = random.randint(5 * 1000, 10 * 1000)
+                                new_cat.stay_time = random.randint(10 * 1000, 40 * 1000)
 
                                 # reset XP
                                 profit_XP = cats_XP[new_cat.name]

@@ -1,12 +1,17 @@
 import pygame
 import os
 import json
+import math
 from enum import Enum
 
 import catmanager
 from button import Button
 from catmanager import CatManager
 pygame.font.init()
+
+# if day is monday, this icon, tuesday, this icon (would be fun to make)
+FelineFrenzyIcon = pygame.image.load(os.path.join("Assets", "johnny_cat.png"))
+pygame.display.set_icon(FelineFrenzyIcon)
 
 
 class WindowState(Enum):
@@ -128,6 +133,7 @@ CURR_ITEM = ""
 
 
 def draw_confirm_window(item):
+    """Opens up the confirm window to confirm purchases from the store"""
     global win_state
     win_state = WindowState.CONFIRM_WIN
     cost = PRICES[item]
@@ -143,9 +149,12 @@ def draw_confirm_window(item):
 
 
 def update_coins():
+    """renders the new value of FISH_COINS"""
     global coin_text
+    # set up and render the new value
     coin_text = S_FONT.render(f"${FISH_COINS}", True, WHITE)
 
+    # reload the current page to see the new change
     match win_state:
         case WindowState.STORE:
             store_button_func()
@@ -154,9 +163,12 @@ def update_coins():
 
 
 def update_XP():
+    """renders the new value of XP"""
     global XP_text
+    # set up and render the new value
     XP_text = S_FONT.render(f"{XP} XP", True, WHITE)
 
+    # reload the current page to see the new change
     match win_state:
         case WindowState.STORE:
             store_button_func()
@@ -165,9 +177,12 @@ def update_XP():
 
 
 def update_level():
+    """renders the new value of LEVEL"""
     global level_text
+    # set up and render the new value
     level_text = S_FONT.render(f"Level: {LEVEL}", True, WHITE)
-
+    
+    # reload the current page to see the new change
     match win_state:
         case WindowState.STORE:
             store_button_func()
@@ -175,7 +190,8 @@ def update_level():
             home_button_func()
 
 
-def is_buyable(cost):
+def can_afford(cost):
+    """determines if an item the user wants to buy can be afforded"""
     global FISH_COINS
     return not FISH_COINS - cost < 0
 
@@ -256,11 +272,11 @@ def you_already_bought_window():
     ok_button.draw()
 
 
-# Recover Func ________________________________________________
+# Recover/Save Funcs ________________________________________________
 
 def save_changes():
     try:
-        with open("Logs.saved_changes.json", "w") as file:
+        with open("Logs/saved_changes.json", "w") as file:
             new_changes = {
                 "fish_coins": FISH_COINS,
                 "xp": XP,
@@ -274,10 +290,12 @@ def save_changes():
 
     except FileNotFoundError:
         # if there is no file, make the file and run this again
-        with open("Logs.saved_changes.json", "w"):
+        with open("Logs/saved_changes.json", "w"):
             save_changes()
     else:
         json.dump(new_changes, file)
+
+
 
 # Button Funcs ______________________________________________________________________
 
@@ -387,7 +405,7 @@ def buy_if_able(item):
     if CURR_ITEM in CM.SM.unlocked_items:
         you_already_bought_window()
 
-    elif not is_buyable(cost):
+    elif not can_afford(cost):
         sorry_not_enough_money_window()
 
     else:
@@ -447,9 +465,6 @@ def check_new_level():
         if win_state == WindowState.HOME:
             unlocked_cat = CM.next_level_cat()
             new_level_congratulations(LEVEL, unlocked_cat)
-            update_level()
-            FISH_COINS += 10
-            update_coins()
             
         else:
             # put it in line to be displayed later on when there is a chance
@@ -458,15 +473,25 @@ def check_new_level():
 
 def new_level_congratulations(level, unlocked_cat):
     global win_state
+    global FISH_COINS
+    
+    # receive rewards
+    FISH_COINS += 5
+    update_coins()
+    update_level()
+
+    # set up window, text for new cat
     win_state = WindowState.NEXT_LEVEL
     pygame.draw.rect(WIN, NAVY, store_confirm_window)
     new_cat_text = f"Look out for {unlocked_cat}" if unlocked_cat != "no more cats" else "No more cats to unlock!"
 
+    # render alert of new level, coin reward, new unlocked cat
     new_level_text = S_FONT.render(f"New level unlocked!", True, WHITE)
     welcome_text = S_FONT.render(f"Welcome to level {level}!", True, WHITE)
-    receive_text = S_FONT.render(f"Coins + 10", True, WHITE)
+    receive_text = S_FONT.render(f"Coins + 5", True, WHITE)
     new_cat_alert_text = S_FONT.render(new_cat_text, True, WHITE)
 
+    # actually update it on screen
     WIN.blit(new_level_text, (WIDTH / 2 - new_level_text.get_width() / 2, 150))
     WIN.blit(welcome_text, (WIDTH / 2 - welcome_text.get_width() / 2, new_level_text.get_height() + 150 + 5))
     WIN.blit(receive_text, (WIDTH / 2 - receive_text.get_width() / 2, 150 + new_level_text.get_height() + welcome_text.get_height() + 5))
@@ -566,24 +591,20 @@ def main():
                 next_level_button.check_click()
 
         # make a new cat based on T/F
-        new_make_val = CM.make_new_cat(time_passed_ms)
-        if type(new_make_val) == int:
-            # that means an XP value was returned, therefore a cat was made
-            XP += new_make_val
-            update_XP()
-            # match win_state:
-            #     case WindowState.HOME:
-            #         home_button_func()
-
+        CM.make_new_cat(time_passed_ms)
+            
         # make a cat leave based on T/F
         new_leave_val = CM.leave_cat(time_passed_ms)
         if type(new_leave_val) == int:
             # that means a money value was returned, therefore a cat left
+
+            # reward coins
             FISH_COINS += new_leave_val
             update_coins()
-            # match win_state:
-            #     case WindowState.HOME:
-            #         home_button_func()
+
+            # reward XP
+            XP += math.floor(new_leave_val / 2)
+            update_XP()
 
         check_new_level()
 
@@ -598,10 +619,13 @@ def main():
 
             if event.type == pygame.QUIT:
                 run = False
+                print("Gonna save changes")
+                save_changes()
+                print('changes saved')
                 pygame.quit()
 
-            if event.type == pygame.KEYDOWN:
-                pass
+            # if event.type == pygame.KEYDOWN:
+            #     pass
 
         pygame.display.update()
 
