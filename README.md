@@ -13,7 +13,7 @@ When they leave, they will tip you some coins. With those coins, you can buy mor
 More XP will result in unlocking new levels, unlocking more cats.
 
 ### Buy Items from the Store!
-![The Store] (https://github.com/Ryamen861/FelineFrenzy/blob/master/preview_images/store_preview.png?raw=true)
+![The Store] (preview_images/store_preview.png?raw=true)
 
 ### Look through your Cat Book!
-![Cat Book] (preview_images/cat_book_preview.png)
+![Cat Book] (preview_images/cat_book_preview.png?raw=true)
