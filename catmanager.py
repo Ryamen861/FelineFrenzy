@@ -129,8 +129,14 @@ class CatManager:
         self.all_cats = [self.johnny_cat, self.sarah_cat, self.oscar_cat, self.may_cat, self.happy_cat,
                          self.curious_cat, self.cool_cat_coby, self.sus_cat]
 
+        # to keep track of unlocked cats
         self.unlocked_cats = [self.johnny_cat]
+
+        # to keep track of cats that the user has met
         self.cats_met = []
+
+        # why need self.cats_met when we have self.unlocked_cats? Because a cat can be unlocked, but it might not have visited yet
+        # in which case the cat should not show up in the cat book
 
         self.current_cats = []
 
@@ -183,7 +189,7 @@ class CatManager:
 
                         cat_chosen = False
                         while not cat_chosen:
-                            # print("...looking for a cat...")
+
                             new_cat = random.choice(self.unlocked_cats)
                             # new cat is a cat object
 

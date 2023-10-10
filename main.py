@@ -275,9 +275,11 @@ def you_already_bought_window():
 # Recover/Save Funcs ________________________________________________
 
 def save_changes():
+    file_path = os.path.join("Logs", "saved_changes.json")
+
     try:
-        with open("Logs/saved_changes.json", "w") as file:
-            new_changes = {
+        with open(file_path, "w") as file:
+            to_be_saved = {
                 "fish_coins": FISH_COINS,
                 "xp": XP,
                 "level": LEVEL,
@@ -290,17 +292,49 @@ def save_changes():
 
     except FileNotFoundError:
         # if there is no file, make the file and run this again
-        with open("Logs/saved_changes.json", "w"):
+        with open(file_path, "w"):
             save_changes()
     else:
-        json.dump(new_changes, file)
+        json.dump(to_be_saved, file, indent=2)
 
+
+def recover():
+    global FISH_COINS
+    global XP
+    global LEVEL
+
+    file_path = os.path.join("Logs", "saved_changes.json")
+
+    try:
+        with open(file_path, "r") as file:
+            data = json.load(file)
+    except FileNotFoundError:
+        with open(file_path, "w") as file:
+            # just make the file
+            pass
+    else:
+        if data != "":
+            # assign the values
+            FISH_COINS = data["fish_coins"]
+            XP = data["xp"]
+            LEVEL = data["level"]
+            CM.unlocked_cats = data["unlocked_cats"]
+            CM.SM.curr_items = data["items on set"]
+            CM.SM.unlocked_items = data["bought items"]
+            catmanager.place_name_to_spot_object_link = data["p_name_to_s_object_link"]
+            CM.SM.curr_item_place_name_link = data["c_item_to_p_name_link"]
+            
+            # update them on screen
+            update_coins()
+            update_level()
+            update_XP()
 
 
 # Button Funcs ______________________________________________________________________
 
 
 def store_button_func():
+    """Draws the store screen"""
     global win_state
     # the current screen is now the store
     win_state = WindowState.STORE
@@ -333,34 +367,36 @@ def store_button_func():
 
 
 def cat_book_func():
+    """Draws the cat book"""
     global win_state
     win_state = WindowState.CAT_BOOK
     WIN.blit(CAT_BOOK_BG, (0, 0))
     caty = 60
-    unlocked_list_len = len(CM.unlocked_cats)
+    num_of_cats_met = len(CM.cats_met)
 
-    if unlocked_list_len > 4:
+    if num_of_cats_met >= 4:
+        # if we need two pages for all of the cats...
+
+        # display the first four on the left page
         for i in range(0, 4):
-            # 0, 1, 2, 3     - which is the first four in terms of indexing
             new_text = cat_book_rows[i]
             WIN.blit(new_text, (100, caty))
-            WIN.blit(CM.unlocked_cats[i].image, (100 + new_text.get_width(), caty))
+            WIN.blit(CM.cats_met[i].image, (100 + new_text.get_width(), caty))
             caty += 112
-        # reset the y value because we start at the top of the other page, now
+            
+        # display the rest on the page on the right
         caty = 60
-        for i in range(4, unlocked_list_len):
+        for i in range(4, num_of_cats_met):
             new_text = cat_book_rows[i]
             WIN.blit(new_text, (500, caty))
-            WIN.blit(CM.unlocked_cats[i].image, (500 + new_text.get_width(), caty))
+            WIN.blit(CM.cats_met[i].image, (500 + new_text.get_width(), caty))
             caty += 112
     else:
-        # print(f"The length of unlocked cats {len(CM.unlocked_cats)}, and we are here")
-        # this means that the number of unlocked cats is less than or equal to 4
-        for i in range(0, len(CM.unlocked_cats)):
-            # print(f"drawing {CM.unlocked_cats[i]}")
+        # all cats displayed will be on the left side of the page
+        for i in range(0, num_of_cats_met):
             new_text = cat_book_rows[i]
             WIN.blit(new_text, (100, caty))
-            WIN.blit(CM.unlocked_cats[i].image, (100 + new_text.get_width(), caty))
+            WIN.blit(CM.cats_met[i].image, (100 + new_text.get_width(), caty))
             caty += 112
 
     home_button.draw()
@@ -369,6 +405,7 @@ def cat_book_func():
 
 
 def home_button_func():
+    """draws the homescreen"""
     global win_state
     # the screen now turns into the store screen
     win_state = WindowState.HOME
@@ -444,6 +481,7 @@ def actual_buy(decider):
 # Level Funcs __________________________________________________________
 
 def check_new_level():
+    """Check if XP received (if any) should move the user to the next level"""
     global XP
     global LEVEL
     global FISH_COINS
@@ -472,6 +510,7 @@ def check_new_level():
 
 
 def new_level_congratulations(level, unlocked_cat):
+    """Make a window that congratulates the user on a new level, alert them of any rewards"""
     global win_state
     global FISH_COINS
     
@@ -507,31 +546,24 @@ book_button = Button(15, 110, book_button_image, WIN, cat_book_func)
 
 # store buttons
 water_bottle_button = Button(0, 200, water_bottle_image, WIN, lambda: buy_if_able("plastic bottle"))
-cardboard_button = Button(water_bottle_image.get_width(), 200, cardboard_image, WIN,
-                          lambda: buy_if_able("scratchy cardboard"))
-plush_toy_button = Button(water_bottle_image.get_width() + cardboard_image.get_width(), 200, plush_toy_image, WIN,
-                          lambda: buy_if_able("plush toy"))
+cardboard_button = Button(water_bottle_image.get_width(), 200, cardboard_image, WIN, lambda: buy_if_able("scratchy cardboard"))
+plush_toy_button = Button(water_bottle_image.get_width() + cardboard_image.get_width(), 200, plush_toy_image, WIN, lambda: buy_if_able("plush toy"))
 cat_track_button = Button(30, water_bottle_image.get_height() + 250, cat_track_image, WIN, lambda: buy_if_able("cat track"))
-
-feather_stick_button = Button(cat_track_image.get_width() + 125, cardboard_image.get_height() + 220, feather_stick_image, WIN,
-                              lambda: buy_if_able("feather on a stick"))
-
+feather_stick_button = Button(cat_track_image.get_width() + 125, cardboard_image.get_height() + 220, feather_stick_image, WIN, 
+                        lambda: buy_if_able("feather on a stick"))
 tube_button = Button(cat_track_image.get_width() + feather_stick_image.get_width() + 230,
-                     plush_toy_image.get_height() + 190, tube_image, WIN, lambda: buy_if_able("crawl tube"))
-# tube_image = pygame.image.load(os.path.join("Assets", "tube.png"))
-# cat_palace_image = pygame.image.load(os.path.join("Assets", "cat_tree.png"))
-# catnip_forest_image = pygame.image.load(os.path.join("Assets", "catnip_forest.png"))
+                    plush_toy_image.get_height() + 190, tube_image, WIN, lambda: buy_if_able("crawl tube"))
 
-# for confirm window
+# buttons for confirm window
 yes_button = Button(700 - yes_text.get_width(), 300, yes_text, WIN, lambda: CM.add_item_to_inventory(CURR_ITEM) if actual_buy(True) else None)
 no_button = Button(200, 300, no_text, WIN, lambda: actual_buy(False))
 
-# for the toy placing process
+# buttons for the toy placing process
 foothill_button = Button(270, 420, place_image, WIN, lambda: plus_button_func("foothill", CURR_ITEM))
 tophill_button = Button(485, 280, place_image, WIN, lambda: plus_button_func("tophill", CURR_ITEM))
 downhill_button = Button(720, 422, place_image, WIN, lambda: plus_button_func("downhill", CURR_ITEM))
 
-# for not enough money window/you already bought window
+# buttons for not enough money window/you already bought window/congratulations window
 ok_button = Button(WIDTH/2 - ok_text.get_width()/2, 250, ok_text, WIN, store_button_func)
 next_level_button = Button(WIDTH/2 - ok_text.get_width()/2, 320, ok_text, WIN, home_button_func)
 
