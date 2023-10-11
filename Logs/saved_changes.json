@@ -1,0 +1,26 @@
+{
+    "unlocked_cats": [
+        "Johnny Cat"
+    ],
+    "cats met": [
+        "Johnny Cat"
+    ],
+    "items on set": [
+        "default box"
+    ],
+    "bought items": [
+        "default box"
+    ],
+    "c_item_to_p_name_link": {
+        "default box": "default_box_place"
+    },
+    "fish_coins": 0,
+    "xp": 0,
+    "level": 0,
+    "p_name_to_s_object_link": {
+        "default_box_place": 0,
+        "foothill": 1,
+        "tophill": 2,
+        "downhill": 3
+    }
+}

@@ -8,14 +8,10 @@ spot_descriptions = ["default_box_place", "foothill", "tophill", "downhill"]
 # it's going to look like    "default box": spot_object
 place_name_to_spot_object_link = {}
 
-
-def return_place_name_to_object_link():
-    return place_name_to_spot_object_link
-
-
 class Spot:
 
-    def __init__(self):
+    def __init__(self, id):
+        self.id = id
         self.description = spot_descriptions[0]
         self.coor = coors[0]
 
@@ -32,14 +28,13 @@ class Spot:
 class SpotManager:
 
     def __init__(self):
-        self.spot1 = Spot()
-        self.spot2 = Spot()
-        self.spot3 = Spot()
-        self.spot4 = Spot()
+        self.spot1 = Spot(0)
+        self.spot2 = Spot(1)
+        self.spot3 = Spot(2)
+        self.spot4 = Spot(3)
 
         self.spots = [self.spot1, self.spot2, self.spot3, self.spot4]
 
-        # do we even need this list?
         self.curr_items = ["default box"]
         self.unlocked_items = ["default box"]
 
@@ -48,7 +43,7 @@ class SpotManager:
         }
 
     def find_open_curr_spots(self):
-        # open_spots will be a list of open spot_objects
+        """returns a list of open spot_objects"""
         open_spots = []
         for item in self.curr_items:
             place_name = self.curr_item_place_name_link[item]
@@ -226,18 +221,15 @@ class CatManager:
 
         item_chose = False
         while not item_chose:
-            # print("looking for a new item")
-            # print(f"curr items: {self.SM.curr_items}")
+
             new_item = random.choice(self.SM.curr_items)  # we find the building
             # new_item is a string, the name of the item
 
             place_name = self.SM.curr_item_place_name_link[new_item]  # we find the address
-            # print(f"place name: {place_name}, new_item = {new_item}")
 
             # new_spot is a Spot object, here we find the spot where the description is
             new_spot = place_name_to_spot_object_link[place_name]  # we find the acre of land that is there
 
-            # print(f"the spot.is_filled {new_spot.is_filled}")
             # now that we have the spot, check if it is filled
             if not new_spot.is_filled:
                 new_spot.cat_in_it = new_cat.name
@@ -248,9 +240,6 @@ class CatManager:
                 return new_item
 
     def cat_placer(self, screen):
-        # why do we even check curr_screen
-        # if curr_screen == 1:
-        # print("Here we place the cats")
 
         for cat in self.current_cats:
             x, y = cat.xy

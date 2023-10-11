@@ -7,6 +7,7 @@ from enum import Enum
 import catmanager
 from button import Button
 from catmanager import CatManager
+from encoders import CMEncoder
 pygame.font.init()
 
 # if day is monday, this icon, tuesday, this icon (would be fun to make)
@@ -79,6 +80,9 @@ pygame.display.set_caption("Feline Frenzy")
 
 # make a CatManager
 CM = CatManager()
+
+# make an Encoder
+Encoder = CMEncoder()
 
 # load images
 BG = pygame.image.load(os.path.join("Assets", "FelineFrenzyBackground.png"))
@@ -278,27 +282,24 @@ def save_changes():
     file_path = os.path.join("Logs", "saved_changes.json")
 
     try:
+        # see if there is a file
         with open(file_path, "w") as file:
-            to_be_saved = {
-                "fish_coins": FISH_COINS,
-                "xp": XP,
-                "level": LEVEL,
-                "unlocked_cats": CM.unlocked_cats,
-                "items on set": CM.SM.curr_items,
-                "bought items": CM.SM.unlocked_items,
-                "p_name_to_s_object_link": catmanager.return_place_name_to_object_link(),
-                "c_item_to_p_name_link": CM.SM.curr_item_place_name_link,
-            }
+            to_be_saved = Encoder.encode(CM)
+            to_be_saved["fish_coins"] = FISH_COINS
+            to_be_saved["xp"] = XP
+            to_be_saved["level"] = LEVEL
+            to_be_saved["p_name_to_s_object_link"] = Encoder.encodeSpotDict(catmanager.place_name_to_spot_object_link)
+                                
+            json.dump(to_be_saved, file, indent=4)
 
     except FileNotFoundError:
         # if there is no file, make the file and run this again
         with open(file_path, "w"):
             save_changes()
-    else:
-        json.dump(to_be_saved, file, indent=2)
 
 
 def recover():
+    ############## NOT YET IMPLEMENTED
     global FISH_COINS
     global XP
     global LEVEL
@@ -308,26 +309,27 @@ def recover():
     try:
         with open(file_path, "r") as file:
             data = json.load(file)
+            if data != "":
+                # assign the values
+                FISH_COINS = data["fish_coins"]
+                XP = data["xp"]
+                LEVEL = data["level"]
+                CM.unlocked_cats = data["unlocked_cats"]
+                CM.cats_met = data["cats met"]
+                CM.SM.curr_items = data["items on set"]
+                CM.SM.unlocked_items = data["bought items"]
+                catmanager.place_name_to_spot_object_link = data["p_name_to_s_object_link"]
+                CM.SM.curr_item_place_name_link = data["c_item_to_p_name_link"]
+                
+                # update them on screen
+                update_coins()
+                update_level()
+                update_XP()
+
     except FileNotFoundError:
         with open(file_path, "w") as file:
             # just make the file
             pass
-    else:
-        if data != "":
-            # assign the values
-            FISH_COINS = data["fish_coins"]
-            XP = data["xp"]
-            LEVEL = data["level"]
-            CM.unlocked_cats = data["unlocked_cats"]
-            CM.SM.curr_items = data["items on set"]
-            CM.SM.unlocked_items = data["bought items"]
-            catmanager.place_name_to_spot_object_link = data["p_name_to_s_object_link"]
-            CM.SM.curr_item_place_name_link = data["c_item_to_p_name_link"]
-            
-            # update them on screen
-            update_coins()
-            update_level()
-            update_XP()
 
 
 # Button Funcs ______________________________________________________________________
@@ -573,6 +575,8 @@ def main():
     global FISH_COINS
     global time_passed_ms
 
+    # recover()
+
     run = True
     clock = pygame.time.Clock()
 
@@ -627,7 +631,7 @@ def main():
             
         # make a cat leave based on T/F
         new_leave_val = CM.leave_cat(time_passed_ms)
-        if type(new_leave_val) == int:
+        if isinstance(new_leave_val, int):
             # that means a money value was returned, therefore a cat left
 
             # reward coins
@@ -650,10 +654,8 @@ def main():
         for event in pygame.event.get():
 
             if event.type == pygame.QUIT:
-                run = False
-                print("Gonna save changes")
                 save_changes()
-                print('changes saved')
+                run = False
                 pygame.quit()
 
             # if event.type == pygame.KEYDOWN:
