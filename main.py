@@ -125,8 +125,8 @@ ITEM_IMAGE_LINK = {
     "cat track": cat_track_image,
     "feather on a stick": feather_stick_image,
     "crawl tube": tube_image,
-    "cat palace": cat_tree_image,
-    "catnip forest": 39,
+    # "cat palace": cat_tree_image,
+    # "catnip forest": 39,
 }
 
 ITEMS = [key for key, value in PRICES.items()]
@@ -219,28 +219,50 @@ def draw_place_toy_window():
 
 
 def item_placer():
-    # update whatever that needs to be on screen items/toys
-    for item in CM.SM.curr_items:
+    """update whatever that needs to be on home screen (toys)"""
 
-        if item != "default box":
+    for spot_object in CM.SM.spots:
+        if spot_object.toy != "" and spot_object.id != 0:
 
-            if item == "plastic bottle":
-                new_image = pygame.transform.scale(water_bottle_image, (150, 75))
-            elif item == "scratchy cardboard":
-                new_image = pygame.transform.scale(cardboard_image, (180, 117))
-            elif item == "plush toy":
-                new_image = pygame.transform.scale(plush_toy_image, (150, 100))
-            elif item == "cat track":
-                new_image = pygame.transform.scale(cat_track_image, (150, 113))
-            else:
-                new_image = ITEM_IMAGE_LINK[item]
+            match spot_object.toy:
+                case "plastic bottle":
+                    new_image = pygame.transform.scale(water_bottle_image, (150, 75))
+                case "scratchy cardboard":
+                    new_image = pygame.transform.scale(cardboard_image, (180, 117))
+                case "plush toy":
+                    new_image = pygame.transform.scale(plush_toy_image, (150, 100))
+                case "cat track":
+                    new_image = pygame.transform.scale(cat_track_image, (150, 113))
+                case _:
+                    new_image = ITEM_IMAGE_LINK[spot_object.toy] ################################################
 
-            for spot_object in CM.SM.spots:
-                if spot_object.item_name == item:
-                    x, y = spot_object.coor
-                    new_x = x - new_image.get_width()/2
-                    new_y = y - new_image.get_height()/2
-                    WIN.blit(new_image, (new_x, new_y))
+            x, y = spot_object.coor
+            new_x = x - new_image.get_width()/2
+            new_y = y - new_image.get_height()/2
+            WIN.blit(new_image, (new_x, new_y))
+
+
+    # for item in CM.SM.curr_items:
+
+    #     if item != "default box":
+
+    #         if item == "plastic bottle":
+    #             new_image = pygame.transform.scale(water_bottle_image, (150, 75))
+    #         elif item == "scratchy cardboard":
+    #             new_image = pygame.transform.scale(cardboard_image, (180, 117))
+    #         elif item == "plush toy":
+    #             new_image = pygame.transform.scale(plush_toy_image, (150, 100))
+    #         elif item == "cat track":
+    #             new_image = pygame.transform.scale(cat_track_image, (150, 113))
+    #         else:
+    #             new_image = ITEM_IMAGE_LINK[item]
+
+    #         for spot_object in CM.SM.spots:
+    #             if spot_object.item_name == item:
+    #                 x, y = spot_object.coor
+    #                 new_x = x - new_image.get_width()/2
+    #                 new_y = y - new_image.get_height()/2
+    #                 WIN.blit(new_image, (new_x, new_y))
 
 
 def plus_button_func(place_description, item):
@@ -288,7 +310,6 @@ def save_changes():
             to_be_saved["fish_coins"] = FISH_COINS
             to_be_saved["xp"] = XP
             to_be_saved["level"] = LEVEL
-            to_be_saved["p_name_to_s_object_link"] = Encoder.encodeSpotDict(catmanager.place_name_to_spot_object_link)
                                 
             json.dump(to_be_saved, file, indent=4)
 
@@ -318,8 +339,7 @@ def recover():
                 CM.cats_met = data["cats met"]
                 CM.SM.curr_items = data["items on set"]
                 CM.SM.unlocked_items = data["bought items"]
-                catmanager.place_name_to_spot_object_link = data["p_name_to_s_object_link"]
-                CM.SM.curr_item_place_name_link = data["c_item_to_p_name_link"]
+                CM.SM.curr_item_place_name_link = data["c_item_top_name_link"]
                 
                 # update them on screen
                 update_coins()
@@ -561,9 +581,9 @@ yes_button = Button(700 - yes_text.get_width(), 300, yes_text, WIN, lambda: CM.a
 no_button = Button(200, 300, no_text, WIN, lambda: actual_buy(False))
 
 # buttons for the toy placing process
-foothill_button = Button(270, 420, place_image, WIN, lambda: plus_button_func("foothill", CURR_ITEM))
-tophill_button = Button(485, 280, place_image, WIN, lambda: plus_button_func("tophill", CURR_ITEM))
-downhill_button = Button(720, 422, place_image, WIN, lambda: plus_button_func("downhill", CURR_ITEM))
+foothill_button = Button(270, 420, place_image, WIN, lambda: plus_button_func(1, CURR_ITEM))
+tophill_button = Button(485, 280, place_image, WIN, lambda: plus_button_func(2, CURR_ITEM))
+downhill_button = Button(720, 422, place_image, WIN, lambda: plus_button_func(3, CURR_ITEM))
 
 # buttons for not enough money window/you already bought window/congratulations window
 ok_button = Button(WIDTH/2 - ok_text.get_width()/2, 250, ok_text, WIN, store_button_func)
@@ -628,6 +648,7 @@ def main():
 
         # make a new cat based on T/F
         CM.make_new_cat(time_passed_ms)
+        CM.cat_placer(WIN)
             
         # make a cat leave based on T/F
         new_leave_val = CM.leave_cat(time_passed_ms)
@@ -641,6 +662,8 @@ def main():
             # reward XP
             XP += math.floor(new_leave_val / 2)
             update_XP()
+
+            CM.cat_placer(WIN)
 
         check_new_level()
 

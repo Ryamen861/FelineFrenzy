@@ -5,9 +5,6 @@ import random
 coors = [(120, 530), (344, 495), (563, 353), (798, 498)]
 spot_descriptions = ["default_box_place", "foothill", "tophill", "downhill"]
 
-# it's going to look like    "default box": spot_object
-place_name_to_spot_object_link = {}
-
 class Spot:
 
     def __init__(self, id):
@@ -17,11 +14,11 @@ class Spot:
 
         coors.pop(0)
         spot_descriptions.pop(0)
-        place_name_to_spot_object_link[self.description] = self
+        # place_name_to_spot_object_link[self.description] = self
 
         # variable, not permanent
         self.cat_in_it = ""
-        self.item_name = ""  # semi-permanent
+        self.toy = ""
         self.is_filled = False  # this is indicating if it is filled by a CAT, not an item
 
 
@@ -29,6 +26,8 @@ class SpotManager:
 
     def __init__(self):
         self.spot1 = Spot(0)
+        self.spot1.toy = "default box"
+
         self.spot2 = Spot(1)
         self.spot3 = Spot(2)
         self.spot4 = Spot(3)
@@ -38,19 +37,27 @@ class SpotManager:
         self.curr_items = ["default box"]
         self.unlocked_items = ["default box"]
 
-        self.curr_item_place_name_link = {
-            "default box": "default_box_place"
-        }
+    def get_num_open_spots(self) -> int:
+        """returns a list of open spot_objects that a new cat can be placed"""
+        num_of_open_spots = 0
+        for spot in self.spots:
+            if not spot.is_filled and spot.toy != "":
+                num_of_open_spots += 1
 
-    def find_open_curr_spots(self):
-        """returns a list of open spot_objects"""
-        open_spots = []
-        for item in self.curr_items:
-            place_name = self.curr_item_place_name_link[item]
-            spot_object = place_name_to_spot_object_link[place_name]
-            if not spot_object.is_filled:
-                open_spots.append(spot_object)
-        return open_spots
+        return num_of_open_spots
+
+
+
+        # open_spots = []
+        # for item in self.curr_items:
+        #     # finding where the item is located
+        #     place_name = self.curr_item_place_name_link[item]
+        #     # finding the object at that location
+        #     spot_object = place_name_to_spot_object_link[place_name]
+        #     # if that object is not filled, append
+        #     if not spot_object.is_filled:
+        #         open_spots.append(spot_object)
+        # return open_spots
 
 
 pygame.transform.scale(pygame.image.load(os.path.join("Assets", "store_button.png")), (150, 100))
@@ -78,11 +85,11 @@ cats_XP = {
 }
 
 # we technically do not need the default box specification
-location_name_to_xy = {
-    "default box": (72, 450),
-    "uphill": (200, 400),
-    "foot_of_hill": (450, 450),
-    "downhill": (700, 450),
+id_to_xy = {
+    0: (72, 450),
+    1: (200, 400),
+    2: (450, 450),
+    3: (700, 450),
 }
 
 # cat_names = ["Johnny Cat", "Sarah Cat", "Oscar Cat", "May Cat", "Happy Cat", "Curious Cat", "Cool Cat Coby", "Sus Cat"]
@@ -100,8 +107,7 @@ class Cat:
         self.image = image
 
         # not permanent
-        self.xy = None
-        self.item_at = None
+        self.xy = ()
         self.birthday = None
         self.stay_time = None
 
@@ -138,7 +144,6 @@ class CatManager:
         # self.counter = 0
 
     def next_level_cat(self):
-        # print("we are trying to update level")
         if len(self.unlocked_cats) < 8:
             newly_unlocked_cat = self.all_cats[len(self.unlocked_cats)]
             self.unlocked_cats.append(newly_unlocked_cat)
@@ -148,22 +153,22 @@ class CatManager:
 
     def leave_cat(self, curr_time):
         profit = None
+        ######################################## could just return zero, change profit = random.randint(0, 10) to profit = random.randint(1, 10)
 
         saved_current_cats = self.current_cats.copy()
 
         for cat in saved_current_cats:
             if curr_time - cat.birthday >= cat.stay_time:
                 self.current_cats.remove(cat)
-                cat.xy = None
-                cat.item_at = None
+                cat.xy = ()
                 cat.birthday = None
                 cat.stay_time = None
+                print("cat left")
+
 
                 for spot_object in self.SM.spots:
                     if spot_object.cat_in_it == cat.name:
-                        spot_object.cat_in_it = None
-                        # print("we reset spot_object.cat_in_it")
-                        # we don't do anything to spot_object.item_name bc we don't change the item, just the cat in it
+                        spot_object.cat_in_it = ""
                         spot_object.is_filled = False
                         break
 
@@ -174,13 +179,14 @@ class CatManager:
         return profit
 
     def make_new_cat(self, time_passed_ms):
+        """Creates a new random cat to show up randomly, decide where it will chill, decide when it leaves"""
         profit_XP = None
 
         if random.choices(COIN, weights=[1, 90])[0]:  # make sure the chances say yes
             if len(self.current_cats) < 4:  # make sure we aren't adding more cats than we can have
                 if len(self.current_cats) != len(self.unlocked_cats):
-                    # if all the cats came, there shouldn't be more coming
-                    if len(self.SM.find_open_curr_spots()) > 0:  # if there are any open spots left
+                    # if all the unlocked cats came, there shouldn't be more coming
+                    if self.SM.get_num_open_spots() > 0:  # if there are any open spots left
 
                         cat_chosen = False
                         while not cat_chosen:
@@ -190,14 +196,9 @@ class CatManager:
 
                             # if the cat is not already one of the cats meant to be on screen
                             if new_cat not in self.current_cats:
-                                # print("we have entered the cat making process")
-                                # we assign it an item
-                                new_cat.item_at = self.item_chooser(new_cat)
 
-                                # we assign the coordinates, based on where the item is placed
-                                for spot_object in self.SM.spots:
-                                    if spot_object.item_name == new_cat.item_at:
-                                        new_cat.xy = spot_object.coor
+                                # assign the cat a place to chill
+                                self.spot_chooser(new_cat)
 
                                 # assign it its b-day
                                 new_cat.birthday = time_passed_ms
@@ -214,33 +215,49 @@ class CatManager:
                                 # reset XP
                                 profit_XP = cats_XP[new_cat.name]
 
+                                print("New cat came")
+
                                 cat_chosen = True
         return profit_XP
 
-    def item_chooser(self, new_cat):
+    def spot_chooser(self, new_cat):
+        """Chooses a random place for a just-arrived-cat to chill, assigns it its coordinates"""
+        # Note: it has always been previously checked in make_new_cat() that there will be an open spot
+        spot_chose = False
+        while not spot_chose:
 
-        item_chose = False
-        while not item_chose:
+            random.shuffle(self.SM.spots)
 
-            new_item = random.choice(self.SM.curr_items)  # we find the building
-            # new_item is a string, the name of the item
+            for spot in self.SM.spots:    # iterate thru each spot to see...
+                if spot.toy != "" and not spot.is_filled: # if there is a toy there and it is not occupied
+                    spot.cat_in_it = new_cat.name
+                    spot.is_filled = True
 
-            place_name = self.SM.curr_item_place_name_link[new_item]  # we find the address
+                    # we assign the coordinates, based on where the item is placed
+                    new_cat.xy = spot.coor
 
-            # new_spot is a Spot object, here we find the spot where the description is
-            new_spot = place_name_to_spot_object_link[place_name]  # we find the acre of land that is there
+                    spot_chose = True
+                    break
 
-            # now that we have the spot, check if it is filled
-            if not new_spot.is_filled:
-                new_spot.cat_in_it = new_cat.name
-                # print(f"The name of the cat is {new_cat.name}")
-                new_spot.item_name = new_item
-                new_spot.is_filled = True
 
-                return new_item
+            # new_item = random.choice(self.SM.curr_items)
+            # # new_item is a string, the name of the item
+
+            # place_name = self.SM.curr_item_place_name_link[new_item]  # we find the address of the item
+
+            # # new_spot is a Spot object, here we find the spot where the description is
+            # new_spot = place_name_to_spot_object_link[place_name]  # we find the acre of land that is there
+
+            # # now that we have the spot, check if it is filled
+            # if not new_spot.is_filled:
+            #     new_spot.cat_in_it = new_cat.name
+
+            #     new_spot.item_name = new_item
+            #     new_spot.is_filled = True
+
+            #     return new_item
 
     def cat_placer(self, screen):
-
         for cat in self.current_cats:
             x, y = cat.xy
             new_x = x - cat.image.get_width()/2
@@ -252,35 +269,36 @@ class CatManager:
     def add_item_to_inventory(self, item):
         # this is called by the "Yes", "No" buttons
         self.SM.unlocked_items.append(item)
+        
 
-    def already_a_toy(self, place_name: str) -> list:
-        spot_object = place_name_to_spot_object_link[place_name]
-        if spot_object.item_name == "":
-            # if the string is empty, then there is no object in it
-            return [False, spot_object]
+    def insert_toy(self, spot_object_id: int, item: str):
+        '''link a newly bought item to a spot object'''
+
+        # STEP 1: identify the spot_object
+        spot_object = None
+        toy_in_it = None
+        
+        # find the spot with the id
+        for spot in self.SM.spots:
+            if spot.id == spot_object_id:
+                spot_object = spot
+
+        # if spot has toy in it
+        if spot_object.toy == "":
+            toy_in_it = False
         else:
-            return [True, spot_object]
+            toy_in_it = True
 
-    def insert_toy(self, place_name: str, item: str):
-        '''basically link a newly added item to a location'''
-
-        # we have to check if that location already has something in it
-
-        data_package = self.already_a_toy(place_name)
-        spot_object = data_package[1]
-
-        if data_package[0]:
+        # STEP 2: place the item there, whether you have to replace something or not
+        if toy_in_it:
             # if there is, replace it, remove it from curr.items
-            toy_to_replace = spot_object.item_name
+            toy_to_replace = spot_object.toy
 
             self.SM.curr_items.remove(toy_to_replace)
             self.SM.curr_items.append(item)
-            spot_object.item_name = item
-            self.SM.curr_item_place_name_link[item] = self.SM.curr_item_place_name_link[toy_to_replace]
-            del self.SM.curr_item_place_name_link[toy_to_replace]
+            spot_object.toy = item
 
         else:
             # else just add the new item
             self.SM.curr_items.append(item)
-            spot_object.item_name = item
-            self.SM.curr_item_place_name_link[item] = place_name
+            spot_object.toy = item
