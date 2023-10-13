@@ -141,7 +141,7 @@ class CatManager:
 
         self.current_cats = []
 
-        # self.counter = 0
+        self.curr_time = 0
 
     def next_level_cat(self):
         if len(self.unlocked_cats) < 8:
@@ -156,6 +156,9 @@ class CatManager:
         ######################################## could just return zero, change profit = random.randint(0, 10) to profit = random.randint(1, 10)
 
         saved_current_cats = self.current_cats.copy()
+
+        # this is saved solely for the purpose of keeping the cats' times when they recover() after opening a new window
+        self.curr_time = curr_time
 
         for cat in saved_current_cats:
             if curr_time - cat.birthday >= cat.stay_time:
@@ -182,7 +185,7 @@ class CatManager:
         """Creates a new random cat to show up randomly, decide where it will chill, decide when it leaves"""
         profit_XP = None
 
-        if random.choices(COIN, weights=[1, 90])[0]:  # make sure the chances say yes
+        if random.choices(COIN, weights=[1, 9])[0]:  # make sure the chances say yes
             if len(self.current_cats) < 4:  # make sure we aren't adding more cats than we can have
                 if len(self.current_cats) != len(self.unlocked_cats):
                     # if all the unlocked cats came, there shouldn't be more coming
@@ -276,21 +279,14 @@ class CatManager:
 
         # STEP 1: identify the spot_object
         spot_object = None
-        toy_in_it = None
         
         # find the spot with the id
         for spot in self.SM.spots:
             if spot.id == spot_object_id:
                 spot_object = spot
 
-        # if spot has toy in it
-        if spot_object.toy == "":
-            toy_in_it = False
-        else:
-            toy_in_it = True
-
         # STEP 2: place the item there, whether you have to replace something or not
-        if toy_in_it:
+        if spot_object.toy != "":
             # if there is, replace it, remove it from curr.items
             toy_to_replace = spot_object.toy
 

@@ -1,0 +1,45 @@
+{
+    "unlocked_cats": [
+        "Johnny Cat",
+        "Sarah Cat",
+        "Oscar Cat"
+    ],
+    "current cats": {
+        "0": "Sarah Cat",
+        "3": "",
+        "2": "Johnny Cat",
+        "1": ""
+    },
+    "cats met": [
+        "Johnny Cat",
+        "Sarah Cat",
+        "Oscar Cat"
+    ],
+    "items on set": [
+        "default box",
+        "scratchy cardboard"
+    ],
+    "bought items": [
+        "default box",
+        "scratchy cardboard"
+    ],
+    "spots with their items": {
+        "0": "default box",
+        "3": "",
+        "2": "scratchy cardboard",
+        "1": ""
+    },
+    "spots with their cats": {
+        "0": "Sarah Cat",
+        "3": "",
+        "2": "Johnny Cat",
+        "1": ""
+    },
+    "cats with their times": {
+        "Sarah Cat": 753,
+        "Johnny Cat": 0
+    },
+    "fish_coins": 131,
+    "xp": 73,
+    "level": 2
+}

@@ -1,6 +1,7 @@
 import pygame
 import os
 import json
+from json import JSONDecodeError
 import math
 from enum import Enum
 
@@ -201,26 +202,25 @@ def can_afford(cost):
 
 
 def draw_place_toy_window():
+    """Setting up the page for a user to place their newly purchsased toy"""
     global win_state
     win_state = WindowState.PLACE_ITEM_WIN
     WIN.blit(PLACE_TOY_BG, (0, 0))
 
-    if CM.SM.spot2.item_name == "":
+    # if the spot has no toy, draw the plus button there to indicate the user can put it there
+    if CM.SM.spot2.toy == "":
         foothill_button.draw()
-    if CM.SM.spot3.item_name == "":
+    if CM.SM.spot3.toy == "":
         tophill_button.draw()
-    if CM.SM.spot4.item_name == "":
+    if CM.SM.spot4.toy == "":
         downhill_button.draw()
-
-    # make the code above into a for loop
 
     # since we sealed a screen over the home button
     store_button.draw()
 
 
 def item_placer():
-    """update whatever that needs to be on home screen (toys)"""
-
+    """update toys that needs to be on home screen """
     for spot_object in CM.SM.spots:
         if spot_object.toy != "" and spot_object.id != 0:
 
@@ -320,7 +320,6 @@ def save_changes():
 
 
 def recover():
-    ############## NOT YET IMPLEMENTED
     global FISH_COINS
     global XP
     global LEVEL
@@ -332,19 +331,89 @@ def recover():
             data = json.load(file)
             if data != "":
                 # assign the values
-                FISH_COINS = data["fish_coins"]
-                XP = data["xp"]
-                LEVEL = data["level"]
-                CM.unlocked_cats = data["unlocked_cats"]
-                CM.cats_met = data["cats met"]
-                CM.SM.curr_items = data["items on set"]
-                CM.SM.unlocked_items = data["bought items"]
-                CM.SM.curr_item_place_name_link = data["c_item_top_name_link"]
-                
+                FISH_COINS = data["fish_coins"]  # int
+                XP = data["xp"]        # int
+                LEVEL = data["level"]  # int
+
+                # restore unlocked_cats
+                names_of_unlocked_cats = data["unlocked_cats"]       # list of strings
+                print(names_of_unlocked_cats)
+                for name in names_of_unlocked_cats:
+                    for cat_object in CM.all_cats:
+                        if cat_object.name != "Johnny Cat":
+                            if name == cat_object.name:
+                                CM.unlocked_cats.append(cat_object)
+                                break
+
+                # restore current cats along with their xy coors,                       ############ include :(name, stay_time?)
+                names_of_current_cats = data["current cats"]        # dictionary
+
+                for spot_object_id, cat_name in names_of_current_cats.items():
+                    for cat_object in CM.all_cats:
+                        if cat_name == cat_object.name:
+
+                            spot_object = ""
+
+                            for spot_o in CM.SM.spots:
+                                if spot_o.id == int(spot_object_id):
+                                    spot_object = spot_o
+                                    break
+
+                            print(spot_object)              #################### error here
+                            print(type(spot_object))
+
+                            cat_object.xy = spot_object.coor
+                            CM.current_cats.append(cat_object)
+                            break
+
+                # restore cats_met
+                names_of_cats_met = data["cats met"]                 # list of strings
+                print(names_of_cats_met)
+                for name in names_of_cats_met:
+                    for cat_object in CM.all_cats:
+                        if name == cat_object.name:
+                            CM.cats_met.append(cat_object)
+                            break
+
+                CM.SM.curr_items = data["items on set"]        # list of strings
+                CM.SM.unlocked_items = data["bought items"]    # list of strings
+
+
+                ######################################  SOMETHING IS WRONG WITH THESE RESOTRATION F0R LOOPS
+
+                # restore toys
+                spots_item_link = data["spots with their items"]  # dictionary
+                for spot_id, toy in spots_item_link.items():
+                    for spot_object in CM.SM.spots:
+                        if int(spot_object.id) != 0:
+                            if int(spot_id) == spot_object.id:
+                                spot_object.toy = toy
+                                break
+
+                # restore cats
+                spots_cat_link = data["spots with their cats"]    # dictionary
+                for k, v in spots_cat_link.items():
+                    for spot_object in CM.SM.spots:
+                        if int(k) == spot_object.id:
+                            print('here')
+                            spot_object.cat_in_it = v
+                            spot_object.is_filled = True
+                            break
+
+                # cats with their times
+                cats_time_link = data["cats with their times"]
+                for cat_name, cat_stay_time in cats_time_link.items():
+                    for cat_object in CM.current_cats:
+                        if cat_name == cat_object.name:
+                            cat_object.stay_time = cat_stay_time
+                            cat_object.birthday = 0.0
+
                 # update them on screen
                 update_coins()
                 update_level()
                 update_XP()
+                item_placer()
+                CM.cat_placer(WIN)                   ############# ITEM AND CAT PLACER DO NO HAVE ANY EFFECT
 
     except FileNotFoundError:
         with open(file_path, "w") as file:
@@ -595,7 +664,10 @@ def main():
     global FISH_COINS
     global time_passed_ms
 
-    # recover()
+    try:
+        recover()
+    except JSONDecodeError:
+        pass
 
     run = True
     clock = pygame.time.Clock()
@@ -606,6 +678,8 @@ def main():
     while run:
         clock.tick(FPS)
         time_passed_ms += clock.get_time()
+        print(time_passed_ms)
+        print(type(time_passed_ms))
 
         match win_state:
             case WindowState.HOME:
@@ -646,9 +720,12 @@ def main():
             case WindowState.NEXT_LEVEL:
                 next_level_button.check_click()
 
-        # make a new cat based on T/F
+
+        # make a new cat based on T/F        
         CM.make_new_cat(time_passed_ms)
-        CM.cat_placer(WIN)
+        match win_state:
+            case WindowState.HOME:
+                CM.cat_placer(WIN)
             
         # make a cat leave based on T/F
         new_leave_val = CM.leave_cat(time_passed_ms)

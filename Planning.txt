@@ -51,12 +51,6 @@ ESTIMATED TIMELINE
     day13 (3/19/23) implemented the new_level_congratulations functionality
     day14 (10/10/23) New icon for window, docstrings, partially implementing saving/recovering, edited cat book, edited readme
     day15 (10/11/23) Fully implemented saving
-
-    FIX json.dump(), can't put in objects of CM to a JSON object taker
-    make methods to return k,v for k,v in a dictionary
-    or i for i in mylist
+    day16 (10/12/23) Simplified placing cats in specific locations by getting rid of linking dictionaries, COMPLETED saving/restoring!
 
     ADD MUSIC!
-
-    # maybe in when insert_toy is called, never instantiate spot_object with id = 0
-    # maybe in the spot_chooser, a double condition check
