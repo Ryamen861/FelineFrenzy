@@ -41,7 +41,6 @@ LEVELS = [20, 40, 80, 140, 220, 320, 440, 580, 700]
 XP = 0
 # CURR_SCREEN = None
 FISH_COINS = 0
-time_passed_ms = 0
 
 # colors
 SECONDARY_COLOR = (244, 229, 97)
@@ -337,7 +336,6 @@ def recover():
 
                 # restore unlocked_cats
                 names_of_unlocked_cats = data["unlocked_cats"]       # list of strings
-                print(names_of_unlocked_cats)
                 for name in names_of_unlocked_cats:
                     for cat_object in CM.all_cats:
                         if cat_object.name != "Johnny Cat":
@@ -345,7 +343,7 @@ def recover():
                                 CM.unlocked_cats.append(cat_object)
                                 break
 
-                # restore current cats along with their xy coors,                       ############ include :(name, stay_time?)
+                # restore current cats along with their xy coors
                 names_of_current_cats = data["current cats"]        # dictionary
 
                 for spot_object_id, cat_name in names_of_current_cats.items():
@@ -359,16 +357,12 @@ def recover():
                                     spot_object = spot_o
                                     break
 
-                            print(spot_object)              #################### error here
-                            print(type(spot_object))
-
                             cat_object.xy = spot_object.coor
                             CM.current_cats.append(cat_object)
                             break
 
                 # restore cats_met
                 names_of_cats_met = data["cats met"]                 # list of strings
-                print(names_of_cats_met)
                 for name in names_of_cats_met:
                     for cat_object in CM.all_cats:
                         if name == cat_object.name:
@@ -377,9 +371,6 @@ def recover():
 
                 CM.SM.curr_items = data["items on set"]        # list of strings
                 CM.SM.unlocked_items = data["bought items"]    # list of strings
-
-
-                ######################################  SOMETHING IS WRONG WITH THESE RESOTRATION F0R LOOPS
 
                 # restore toys
                 spots_item_link = data["spots with their items"]  # dictionary
@@ -395,7 +386,6 @@ def recover():
                 for k, v in spots_cat_link.items():
                     for spot_object in CM.SM.spots:
                         if int(k) == spot_object.id:
-                            print('here')
                             spot_object.cat_in_it = v
                             spot_object.is_filled = True
                             break
@@ -406,14 +396,14 @@ def recover():
                     for cat_object in CM.current_cats:
                         if cat_name == cat_object.name:
                             cat_object.stay_time = cat_stay_time
-                            cat_object.birthday = 0.0
+                            cat_object.birthday = 0
 
                 # update them on screen
                 update_coins()
                 update_level()
                 update_XP()
                 item_placer()
-                CM.cat_placer(WIN)                   ############# ITEM AND CAT PLACER DO NO HAVE ANY EFFECT
+                CM.cat_placer(WIN)
 
     except FileNotFoundError:
         with open(file_path, "w") as file:
@@ -662,7 +652,6 @@ next_level_button = Button(WIDTH/2 - ok_text.get_width()/2, 320, ok_text, WIN, h
 def main():
     global XP
     global FISH_COINS
-    global time_passed_ms
 
     try:
         recover()
@@ -677,9 +666,7 @@ def main():
 
     while run:
         clock.tick(FPS)
-        time_passed_ms += clock.get_time()
-        print(time_passed_ms)
-        print(type(time_passed_ms))
+        CM.curr_time += clock.get_time()
 
         match win_state:
             case WindowState.HOME:
@@ -722,13 +709,13 @@ def main():
 
 
         # make a new cat based on T/F        
-        CM.make_new_cat(time_passed_ms)
+        CM.make_new_cat()
         match win_state:
             case WindowState.HOME:
                 CM.cat_placer(WIN)
             
         # make a cat leave based on T/F
-        new_leave_val = CM.leave_cat(time_passed_ms)
+        new_leave_val = CM.leave_cat()
         if isinstance(new_leave_val, int):
             # that means a money value was returned, therefore a cat left
 

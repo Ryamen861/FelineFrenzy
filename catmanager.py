@@ -151,17 +151,13 @@ class CatManager:
         else:
             return "no more cats"
 
-    def leave_cat(self, curr_time):
+    def leave_cat(self):
         profit = None
         ######################################## could just return zero, change profit = random.randint(0, 10) to profit = random.randint(1, 10)
-
         saved_current_cats = self.current_cats.copy()
 
-        # this is saved solely for the purpose of keeping the cats' times when they recover() after opening a new window
-        self.curr_time = curr_time
-
         for cat in saved_current_cats:
-            if curr_time - cat.birthday >= cat.stay_time:
+            if self.curr_time - cat.birthday >= cat.stay_time:
                 self.current_cats.remove(cat)
                 cat.xy = ()
                 cat.birthday = None
@@ -181,7 +177,7 @@ class CatManager:
         # if profit == None, then nothing changed, if it is zero to 80, then a cat left
         return profit
 
-    def make_new_cat(self, time_passed_ms):
+    def make_new_cat(self):
         """Creates a new random cat to show up randomly, decide where it will chill, decide when it leaves"""
         profit_XP = None
 
@@ -204,7 +200,7 @@ class CatManager:
                                 self.spot_chooser(new_cat)
 
                                 # assign it its b-day
-                                new_cat.birthday = time_passed_ms
+                                new_cat.birthday = self.curr_time
 
                                 # if the user hasn't met the cat yet, put it now in their cat book
                                 self.cats_met.append(new_cat) if new_cat not in self.cats_met else None
