@@ -374,7 +374,6 @@ def recover():
 
                 # restore current cats along with their xy coors
                 names_of_current_cats = data["current cats"]        # dictionary
-
                 for spot_object_id, cat_name in names_of_current_cats.items():
                     for cat_object in CM.all_cats:
                         if cat_name == cat_object.name:
@@ -410,7 +409,7 @@ def recover():
                                 spot_object.toy = toy
                                 break
 
-                # restore cats
+                # restore cats with their spots
                 spots_cat_link = data["spots with their cats"]    # dictionary
                 for k, v in spots_cat_link.items():
                     for spot_object in CM.SM.spots:
@@ -419,7 +418,7 @@ def recover():
                             spot_object.is_filled = True
                             break
 
-                # cats with their times
+                # cats with their times/birthdays
                 cats_time_link = data["cats with their times"]
                 for cat_name, cat_stay_time in cats_time_link.items():
                     for cat_object in CM.current_cats:
@@ -723,7 +722,7 @@ def main():
 
     while run:
         clock.tick(FPS)
-        CM.curr_time += pygame.time.get_ticks()
+        CM.curr_time = pygame.time.get_ticks()
 
         match win_state:
             case WindowState.HOME:
@@ -792,22 +791,20 @@ def main():
             
         # make a cat leave based on T/F
         new_leave_val = CM.leave_cat()
-        if isinstance(new_leave_val, int):
-            # that means a money value was returned, therefore a cat left
+        
+        # reward coins and XP
+        FISH_COINS += new_leave_val
+        update_coins()
+        XP += math.floor(new_leave_val / 2)
+        update_XP()
 
-            # reward coins
-            FISH_COINS += new_leave_val
-            update_coins()
+        # update cats
+        CM.cat_placer(WIN)
 
-            # reward XP
-            XP += math.floor(new_leave_val / 2)
-            update_XP()
-
-            CM.cat_placer(WIN)
-
+        # check for a new level
         check_new_level()
 
-        # check the flag event
+        # check the flag for an event
         if win_state == WindowState.HOME:
             if len(flag_event) > 0:
                 level = flag_event[0]

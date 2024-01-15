@@ -43,7 +43,6 @@ class SpotManager:
         for spot in self.spots:
             if not spot.is_filled and spot.toy != "":
                 num_of_open_spots += 1
-
         return num_of_open_spots
 
 
@@ -152,18 +151,17 @@ class CatManager:
             return "no more cats"
 
     def leave_cat(self):
-        profit = None
-        ######################################## could just return zero, change profit = random.randint(0, 10) to profit = random.randint(1, 10)
+        profit = 0
         saved_current_cats = self.current_cats.copy()
 
         for cat in saved_current_cats:
-            if self.curr_time - cat.birthday >= cat.stay_time:
+            if cat.birthday + cat.stay_time >= self.curr_time:
+                print("bye cat")
+                # take the cat out, reset cat
                 self.current_cats.remove(cat)
                 cat.xy = ()
                 cat.birthday = None
                 cat.stay_time = None
-                print("cat left")
-
 
                 for spot_object in self.SM.spots:
                     if spot_object.cat_in_it == cat.name:
@@ -172,7 +170,7 @@ class CatManager:
                         break
 
                 # the cat gives a tip
-                profit = random.randint(200, 300) ######################################################################
+                profit = random.randint(0, 10)
 
         # if profit == None, then nothing changed, if it is zero to 80, then a cat left
         return profit
@@ -180,13 +178,17 @@ class CatManager:
     def make_new_cat(self):
         """Creates a new random cat to show up randomly, decide where it will chill, decide when it leaves"""
         profit_XP = None
-
+        print("here")
         if random.choices(COIN, weights=[1, 9])[0]:  # make sure the chances say yes
+            print("there")
             if len(self.current_cats) < 4:  # make sure we aren't adding more cats than we can have
+                print("everywhere")
                 if len(self.current_cats) != len(self.unlocked_cats):
+                    print("Here, let me see the mayor")
                     # if all the unlocked cats came, there shouldn't be more coming
+                    print("give me the chair")
                     if self.SM.get_num_open_spots() > 0:  # if there are any open spots left
-
+                        print("we have entered the final layer")
                         cat_chosen = False
                         while not cat_chosen:
 
@@ -210,11 +212,10 @@ class CatManager:
 
                                 # decide how long the cat will stay there, multiplying by 1000 bc pygame takes it in milliseconds
                                 new_cat.stay_time = random.randint(10 * 1000, 40 * 1000)
+                                print(new_cat.stay_time)
 
                                 # reset XP
                                 profit_XP = cats_XP[new_cat.name]
-
-                                print("New cat came")
 
                                 cat_chosen = True
         return profit_XP
