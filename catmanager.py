@@ -294,3 +294,9 @@ class CatManager:
             # else just add the new item
             self.SM.curr_items.append(item)
             spot_object.toy = item
+
+    def daximouse_present(self):
+        for spot in self.SM.spots:
+            if spot.toy == "Daximouse Chime":
+                return True
+        return False

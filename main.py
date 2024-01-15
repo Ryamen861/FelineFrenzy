@@ -113,7 +113,7 @@ daximouse_image3 = pygame.image.load(os.path.join("Assets", "daximouse_cuts", "D
 
 # daximouse variables
 daximouse_animation_prev_time = 0
-daximouse_tick = 0
+daximouse_tick = 1
 daximouse_curr_image = daximouse_image1
 
 # add place buttons
@@ -239,7 +239,7 @@ def draw_place_toy_window():
 def item_placer():
     """update toys that needs to be on home screen, *args for a boolean to tick to the next image for Daximouse"""
     global daximouse_tick
-    global daximouse_curr_image
+    # global daximouse_curr_image
     for spot_object in CM.SM.spots:
         if spot_object.toy != "" and spot_object.id != 0:
 
@@ -254,31 +254,8 @@ def item_placer():
                     new_image = pygame.transform.scale(plush_toy_image, (150, 150))
                 case "cat track":
                     new_image = pygame.transform.scale(cat_track_image, (150, 113))
-                # case "Daximouse Chime":
-                #     # now that we know there is a daximouse on set,
-
-                #     # then check how many seconds passed
-                #     if 
-                    
-
-
-
-
-
-
-
-
-
-                #     # if it is time to move animation
-                #     if len(args) > 0: # there is some a
-                #         if args[0] > 3000:
-                #             daximouse_tick += 1
-                #             if daximouse_tick > 3:
-                #                 daximouse_tick = daximouse_tick % 3
-                #             new_image = ITEM_IMAGE_LINK[spot_object.toy][daximouse_tick]
-                #             daximouse_curr_image = new_image
-                #     else:
-                #         new_image = daximouse_curr_image
+                case "Daximouse Chime":
+                    new_image = ITEM_IMAGE_LINK[spot_object.toy][daximouse_tick]
                 case _:
                     new_image = ITEM_IMAGE_LINK[spot_object.toy]
 
@@ -375,7 +352,6 @@ def recover():
     global FISH_COINS
     global XP
     global LEVEL
-    print("Trying to recover")
     file_path = os.path.join("Logs", "saved_changes.json")
 
     try:
@@ -732,6 +708,7 @@ def main():
     global XP
     global FISH_COINS
     global daximouse_animation_prev_time
+    global daximouse_tick
 
     try:
         recover()
@@ -746,13 +723,21 @@ def main():
 
     while run:
         clock.tick(FPS)
-        CM.curr_time += clock.get_time()
+        CM.curr_time += pygame.time.get_ticks()
 
         match win_state:
             case WindowState.HOME:
                 store_button.check_click()
                 book_button.check_click()
-                # clock.get_time() - daximouse_animation_prev_time         
+
+                if CM.daximouse_present():
+                    if (pygame.time.get_ticks() - daximouse_animation_prev_time) > 800:
+                        print(pygame.time.get_ticks() - daximouse_animation_prev_time)
+                        daximouse_animation_prev_time = pygame.time.get_ticks()
+                        daximouse_tick += 1
+                        if daximouse_tick > 3:
+                            daximouse_tick = daximouse_tick % 3
+                        home_button_func()
 
             case WindowState.STORE1:
                 home_button.check_click()
