@@ -1,0 +1,36 @@
+{
+    "unlocked_cats": [
+        "Johnny Cat"
+    ],
+    "current cats": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "cats met": [
+        "Johnny Cat"
+    ],
+    "items on set": [
+        "default box"
+    ],
+    "bought items": [
+        "default box"
+    ],
+    "spots with their items": {
+        "0": "default box",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "spots with their cats": {
+        "0": "",
+        "1": "",
+        "2": "",
+        "3": ""
+    },
+    "cats with their times": {},
+    "fish_coins": 4,
+    "xp": 2,
+    "level": 0
+}

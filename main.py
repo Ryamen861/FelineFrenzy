@@ -18,16 +18,18 @@ pygame.display.set_icon(FelineFrenzyIcon)
 
 class WindowState(Enum):
     HOME = 1
-    STORE = 2
-    CONFIRM_WIN = 3
-    PLACE_ITEM_WIN = 4
-    ALREADY_BOUGHT_WIN = 5
-    NOT_ENOUGH_MONEY_WIN = 6
-    CAT_BOOK = 7
-    NEXT_LEVEL = 8
+    STORE1 = 2
+    STORE2 = 3
+    CONFIRM_WIN = 4
+    PLACE_ITEM_WIN = 5
+    ALREADY_BOUGHT_WIN = 6
+    NOT_ENOUGH_MONEY_WIN = 7
+    CAT_BOOK = 8
+    NEXT_LEVEL = 9
 
 
 win_state = WindowState.HOME
+prev_store_state = 0
 
 FONT = pygame.font.SysFont("comicsans", 40)
 S_FONT = pygame.font.SysFont("comicsans", 29)
@@ -92,18 +94,20 @@ store_button_image = pygame.transform.scale(pygame.image.load(os.path.join("Asse
 home_button_image = pygame.transform.scale(pygame.image.load(os.path.join("Assets", "home_button.png")), (150, 100))
 book_button_image = pygame.transform.scale(pygame.image.load(os.path.join("Assets", "book_button_image.png")),
                                            (150, 100))
-right_arrow_image = pygame.transform.scale(pygame.image.load(os.path.join("Assets", "right_arrow.png")))
+right_arrow_image = pygame.transform.scale(pygame.image.load(os.path.join("Assets", "right_arrow.png")), (150, 150))
+left_arrow_image = pygame.transform.rotate(pygame.transform.scale(pygame.image.load(os.path.join("Assets", "right_arrow.png")), (150, 150)), 180)
 
 # store images
 water_bottle_image = pygame.image.load(os.path.join("Assets", "water_bottle.png"))
 cardboard_image = pygame.transform.scale(pygame.image.load(os.path.join("Assets", "scratchy_cardboard.jpg")),
                                          (270, 175))
-plush_toy_image = pygame.transform.scale(pygame.image.load(os.path.join("Assets", "teddy_bear.png")), (300, 200))
+plush_toy_image = pygame.transform.scale(pygame.image.load(os.path.join("Assets", "teddy_bear.png")), (200, 200))
 cat_track_image = pygame.image.load(os.path.join("Assets", "cat_track_toy.png"))
 feather_stick_image = pygame.image.load(os.path.join("Assets", "feather_on_a_stick.png"))
 tube_image = pygame.image.load(os.path.join("Assets", "tube.png"))
 cat_tree_image = pygame.image.load(os.path.join("Assets", "cat_tree.png"))
 catnip_forest_image = pygame.image.load(os.path.join("Assets", "catnip_forest.png"))
+daximouse_image = pygame.image.load(os.path.join("Assets", "daximouse_cuts", "DaxMouse1.png"))
 
 # add place buttons
 place_image = pygame.transform.scale(pygame.image.load(os.path.join("Assets", "plus_button.png")), (150, 150))
@@ -115,8 +119,9 @@ PRICES = {
     "cat track": 115,
     "feather on a stick": 150,
     "crawl tube": 185,
-    "cat palace": 250,
+    "cat tree": 250,
     "catnip forest": 390,
+    "Daximouse Chime": 500,
 }
 
 ITEM_IMAGE_LINK = {
@@ -126,8 +131,9 @@ ITEM_IMAGE_LINK = {
     "cat track": cat_track_image,
     "feather on a stick": feather_stick_image,
     "crawl tube": tube_image,
-    # "cat palace": cat_tree_image,
-    # "catnip forest": 39,
+    "cat tree": cat_tree_image,
+    "catnip forest": catnip_forest_image,
+    "Daximouse Chime": daximouse_image,
 }
 
 ITEMS = [key for key, value in PRICES.items()]
@@ -161,8 +167,8 @@ def update_coins():
 
     # reload the current page to see the new change
     match win_state:
-        case WindowState.STORE:
-            store_button_func()
+        case WindowState.STORE1:
+            store_button_func(1)
         case WindowState.HOME:
             home_button_func()
 
@@ -175,8 +181,8 @@ def update_XP():
 
     # reload the current page to see the new change
     match win_state:
-        case WindowState.STORE:
-            store_button_func()
+        case WindowState.STORE1:
+            store_button_func(1)
         case WindowState.HOME:
             home_button_func()
 
@@ -189,8 +195,8 @@ def update_level():
     
     # reload the current page to see the new change
     match win_state:
-        case WindowState.STORE:
-            store_button_func()
+        case WindowState.STORE1:
+            store_button_func(1)
         case WindowState.HOME:
             home_button_func()
 
@@ -272,6 +278,9 @@ def plus_button_func(place_description, item):
 
 def sorry_not_enough_money_window():
     global win_state
+    global prev_store_state
+
+    prev_store_state = win_state
     win_state = WindowState.NOT_ENOUGH_MONEY_WIN
 
     # store confirm window because it is the same format/style we want
@@ -287,6 +296,9 @@ def sorry_not_enough_money_window():
 
 def you_already_bought_window():
     global win_state
+    global prev_store_state
+
+    prev_store_state = win_state
     win_state = WindowState.ALREADY_BOUGHT_WIN
 
     # store confirm window because it is the same format/style we want
@@ -414,12 +426,9 @@ def recover():
 
 # Button Funcs ______________________________________________________________________
 
-
-def store_button_func():
+def store_button_func(page_number):
     """Draws the store screen"""
     global win_state
-    # the current screen is now the store
-    win_state = WindowState.STORE
 
     # set the background color
     pygame.draw.rect(WIN, STORE_BG_COLOR, STORE_BG)
@@ -432,23 +441,41 @@ def store_button_func():
     WIN.blit(coin_text, (5, 5))
     WIN.blit(XP_text, (5, coin_text.get_height() + 5))
     WIN.blit(level_text, (5, coin_text.get_height() + XP_text.get_height() + 5))
-
+ 
     # add the home button
     home_button.draw()
+ 
+    if page_number == 1:
+        # the current screen is now the first page of the store
+        win_state = WindowState.STORE1
 
-    # the item buttons
-    water_bottle_button.draw()
-    cardboard_button.draw()
-    plush_toy_button.draw()
+        # the item buttons
+        water_bottle_button.draw()
+        cardboard_button.draw()
+        plush_toy_button.draw()
 
-    cat_track_button.draw()
-    feather_stick_button.draw()
-    tube_button.draw()
+        cat_track_button.draw()
+        feather_stick_button.draw()
+        tube_button.draw()
 
+        right_arrow_button.draw()
+    else:
+        win_state = WindowState.STORE2
 
+        cat_tree_button.draw()
+        catnip_forest_button.draw()
+        daximouse_button.draw()
+
+        left_arrow_button.draw()
 
     pygame.display.update()
 
+def return_to_designated_window():
+    global prev_store_state
+    if prev_store_state == WindowState.STORE1:
+        store_button_func(1)
+    elif prev_store_state == WindowState.STORE2:
+        store_button_func(2)
 
 def cat_book_func():
     """Draws the cat book"""
@@ -559,7 +586,7 @@ def actual_buy(decider):
         return item
         # return item so that the button can also call the CM to add the item
     else:
-        store_button_func()
+        store_button_func(1)
 
 
 # Level Funcs __________________________________________________________
@@ -624,20 +651,29 @@ def new_level_congratulations(level, unlocked_cat):
 
 
 # create all the buttons (but don't draw them yet)
-store_button = Button(15, 0, store_button_image, WIN, store_button_func)
+store_button = Button(15, 0, store_button_image, WIN, lambda: store_button_func(1))
 home_button = Button(WIDTH - home_button_image.get_width(), 15, home_button_image, WIN, home_button_func)
 book_button = Button(15, 110, book_button_image, WIN, cat_book_func)
 
 # store buttons
+    # page 1
 water_bottle_button = Button(0, 200, water_bottle_image, WIN, lambda: buy_if_able("plastic bottle"))
 cardboard_button = Button(water_bottle_image.get_width(), 200, cardboard_image, WIN, lambda: buy_if_able("scratchy cardboard"))
-plush_toy_button = Button(water_bottle_image.get_width() + cardboard_image.get_width(), 200, plush_toy_image, WIN, lambda: buy_if_able("plush toy"))
+plush_toy_button = Button(water_bottle_image.get_width() + cardboard_image.get_width() + 20, 200, plush_toy_image, WIN, lambda: buy_if_able("plush toy"))
 cat_track_button = Button(30, water_bottle_image.get_height() + 250, cat_track_image, WIN, lambda: buy_if_able("cat track"))
 feather_stick_button = Button(cat_track_image.get_width() + 125, cardboard_image.get_height() + 220, feather_stick_image, WIN, 
                         lambda: buy_if_able("feather on a stick"))
 tube_button = Button(cat_track_image.get_width() + feather_stick_image.get_width() + 230,
                     plush_toy_image.get_height() + 190, tube_image, WIN, lambda: buy_if_able("crawl tube"))
-right_arrow_button = Button(right_arrow_image.get_width(), right_arrow_image.get_height(), right_arrow_image, WIN, lambda: buy_if_able("Daximouse Chime"))
+
+    # page 2
+cat_tree_button = Button(100, 170, cat_tree_image, WIN, lambda: buy_if_able("cat tree"))
+catnip_forest_button = Button(cat_tree_image.get_width() + 180, 180, catnip_forest_image, WIN, lambda: buy_if_able("catnip forest"))
+daximouse_button = Button(cat_tree_image.get_width() + catnip_forest_image.get_width() + 280, 200, daximouse_image, WIN, lambda: buy_if_able("Daximouse Chime"))
+
+# to navigate pages of store
+right_arrow_button = Button(770, 300, right_arrow_image, WIN, lambda: store_button_func(2))
+left_arrow_button = Button(-20, 300, left_arrow_image, WIN, lambda: store_button_func(1))
 
 # buttons for confirm window
 yes_button = Button(700 - yes_text.get_width(), 300, yes_text, WIN, lambda: CM.add_item_to_inventory(CURR_ITEM) if actual_buy(True) else None)
@@ -649,7 +685,7 @@ tophill_button = Button(485, 280, place_image, WIN, lambda: plus_button_func(2, 
 downhill_button = Button(720, 422, place_image, WIN, lambda: plus_button_func(3, CURR_ITEM))
 
 # buttons for not enough money window/you already bought window/congratulations window
-ok_button = Button(WIDTH/2 - ok_text.get_width()/2, 250, ok_text, WIN, store_button_func)
+ok_button = Button(WIDTH/2 - ok_text.get_width()/2, 250, ok_text, WIN, return_to_designated_window)
 next_level_button = Button(WIDTH/2 - ok_text.get_width()/2, 320, ok_text, WIN, home_button_func)
 
 
@@ -677,7 +713,7 @@ def main():
                 store_button.check_click()
                 book_button.check_click()
 
-            case WindowState.STORE:
+            case WindowState.STORE1:
                 home_button.check_click()
 
                 water_bottle_button.check_click()
@@ -687,6 +723,17 @@ def main():
                 cat_track_button.check_click()
                 feather_stick_button.check_click()
                 tube_button.check_click()
+
+                right_arrow_button.check_click()
+
+            case WindowState.STORE2:
+                home_button.check_click()
+
+                cat_tree_button.check_click()
+                catnip_forest_button.check_click()
+                daximouse_button.check_click()
+
+                left_arrow_button.check_click()
 
             case WindowState.CAT_BOOK:
                 home_button.check_click()
