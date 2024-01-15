@@ -92,6 +92,7 @@ store_button_image = pygame.transform.scale(pygame.image.load(os.path.join("Asse
 home_button_image = pygame.transform.scale(pygame.image.load(os.path.join("Assets", "home_button.png")), (150, 100))
 book_button_image = pygame.transform.scale(pygame.image.load(os.path.join("Assets", "book_button_image.png")),
                                            (150, 100))
+right_arrow_image = pygame.transform.scale(pygame.image.load(os.path.join("Assets", "right_arrow.png")))
 
 # store images
 water_bottle_image = pygame.image.load(os.path.join("Assets", "water_bottle.png"))
@@ -444,6 +445,8 @@ def store_button_func():
     feather_stick_button.draw()
     tube_button.draw()
 
+
+
     pygame.display.update()
 
 
@@ -634,6 +637,7 @@ feather_stick_button = Button(cat_track_image.get_width() + 125, cardboard_image
                         lambda: buy_if_able("feather on a stick"))
 tube_button = Button(cat_track_image.get_width() + feather_stick_image.get_width() + 230,
                     plush_toy_image.get_height() + 190, tube_image, WIN, lambda: buy_if_able("crawl tube"))
+right_arrow_button = Button(right_arrow_image.get_width(), right_arrow_image.get_height(), right_arrow_image, WIN, lambda: buy_if_able("Daximouse Chime"))
 
 # buttons for confirm window
 yes_button = Button(700 - yes_text.get_width(), 300, yes_text, WIN, lambda: CM.add_item_to_inventory(CURR_ITEM) if actual_buy(True) else None)
