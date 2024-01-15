@@ -107,7 +107,14 @@ feather_stick_image = pygame.image.load(os.path.join("Assets", "feather_on_a_sti
 tube_image = pygame.image.load(os.path.join("Assets", "tube.png"))
 cat_tree_image = pygame.image.load(os.path.join("Assets", "cat_tree.png"))
 catnip_forest_image = pygame.image.load(os.path.join("Assets", "catnip_forest.png"))
-daximouse_image = pygame.image.load(os.path.join("Assets", "daximouse_cuts", "DaxMouse1.png"))
+daximouse_image1 = pygame.image.load(os.path.join("Assets", "daximouse_cuts", "DaxMouse1.png"))
+daximouse_image2 = pygame.image.load(os.path.join("Assets", "daximouse_cuts", "DaxMouse2.png"))
+daximouse_image3 = pygame.image.load(os.path.join("Assets", "daximouse_cuts", "DaxMouse3.png"))
+
+# daximouse variables
+daximouse_animation_prev_time = 0
+daximouse_tick = 0
+daximouse_curr_image = daximouse_image1
 
 # add place buttons
 place_image = pygame.transform.scale(pygame.image.load(os.path.join("Assets", "plus_button.png")), (150, 150))
@@ -133,7 +140,11 @@ ITEM_IMAGE_LINK = {
     "crawl tube": tube_image,
     "cat tree": cat_tree_image,
     "catnip forest": catnip_forest_image,
-    "Daximouse Chime": daximouse_image,
+    "Daximouse Chime": {
+        1: daximouse_image1,
+        2: daximouse_image2,
+        3: daximouse_image3,
+        },
 }
 
 ITEMS = [key for key, value in PRICES.items()]
@@ -226,9 +237,13 @@ def draw_place_toy_window():
 
 
 def item_placer():
-    """update toys that needs to be on home screen """
+    """update toys that needs to be on home screen, *args for a boolean to tick to the next image for Daximouse"""
+    global daximouse_tick
+    global daximouse_curr_image
     for spot_object in CM.SM.spots:
         if spot_object.toy != "" and spot_object.id != 0:
+
+            new_image = 1
 
             match spot_object.toy:
                 case "plastic bottle":
@@ -236,11 +251,36 @@ def item_placer():
                 case "scratchy cardboard":
                     new_image = pygame.transform.scale(cardboard_image, (180, 117))
                 case "plush toy":
-                    new_image = pygame.transform.scale(plush_toy_image, (150, 100))
+                    new_image = pygame.transform.scale(plush_toy_image, (150, 150))
                 case "cat track":
                     new_image = pygame.transform.scale(cat_track_image, (150, 113))
+                # case "Daximouse Chime":
+                #     # now that we know there is a daximouse on set,
+
+                #     # then check how many seconds passed
+                #     if 
+                    
+
+
+
+
+
+
+
+
+
+                #     # if it is time to move animation
+                #     if len(args) > 0: # there is some a
+                #         if args[0] > 3000:
+                #             daximouse_tick += 1
+                #             if daximouse_tick > 3:
+                #                 daximouse_tick = daximouse_tick % 3
+                #             new_image = ITEM_IMAGE_LINK[spot_object.toy][daximouse_tick]
+                #             daximouse_curr_image = new_image
+                #     else:
+                #         new_image = daximouse_curr_image
                 case _:
-                    new_image = ITEM_IMAGE_LINK[spot_object.toy] ################################################
+                    new_image = ITEM_IMAGE_LINK[spot_object.toy]
 
             x, y = spot_object.coor
             new_x = x - new_image.get_width()/2
@@ -335,7 +375,7 @@ def recover():
     global FISH_COINS
     global XP
     global LEVEL
-
+    print("Trying to recover")
     file_path = os.path.join("Logs", "saved_changes.json")
 
     try:
@@ -415,14 +455,13 @@ def recover():
                 update_coins()
                 update_level()
                 update_XP()
-                item_placer()
+
                 CM.cat_placer(WIN)
 
     except FileNotFoundError:
         with open(file_path, "w") as file:
             # just make the file
             pass
-
 
 # Button Funcs ______________________________________________________________________
 
@@ -583,8 +622,8 @@ def actual_buy(decider):
         # set up the screen so that the person can choose where to put the new toy
         draw_place_toy_window()
 
-        return item
         # return item so that the button can also call the CM to add the item
+        return item
     else:
         store_button_func(1)
 
@@ -669,7 +708,7 @@ tube_button = Button(cat_track_image.get_width() + feather_stick_image.get_width
     # page 2
 cat_tree_button = Button(100, 170, cat_tree_image, WIN, lambda: buy_if_able("cat tree"))
 catnip_forest_button = Button(cat_tree_image.get_width() + 180, 180, catnip_forest_image, WIN, lambda: buy_if_able("catnip forest"))
-daximouse_button = Button(cat_tree_image.get_width() + catnip_forest_image.get_width() + 280, 200, daximouse_image, WIN, lambda: buy_if_able("Daximouse Chime"))
+daximouse_button = Button(cat_tree_image.get_width() + catnip_forest_image.get_width() + 280, 200, daximouse_image1, WIN, lambda: buy_if_able("Daximouse Chime"))
 
 # to navigate pages of store
 right_arrow_button = Button(770, 300, right_arrow_image, WIN, lambda: store_button_func(2))
@@ -692,6 +731,7 @@ next_level_button = Button(WIDTH/2 - ok_text.get_width()/2, 320, ok_text, WIN, h
 def main():
     global XP
     global FISH_COINS
+    global daximouse_animation_prev_time
 
     try:
         recover()
@@ -712,6 +752,7 @@ def main():
             case WindowState.HOME:
                 store_button.check_click()
                 book_button.check_click()
+                # clock.get_time() - daximouse_animation_prev_time         
 
             case WindowState.STORE1:
                 home_button.check_click()
@@ -757,8 +798,7 @@ def main():
 
             case WindowState.NEXT_LEVEL:
                 next_level_button.check_click()
-
-
+                            
         # make a new cat based on T/F        
         CM.make_new_cat()
         match win_state:

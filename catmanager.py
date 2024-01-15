@@ -172,7 +172,7 @@ class CatManager:
                         break
 
                 # the cat gives a tip
-                profit = random.randint(0, 10)
+                profit = random.randint(200, 300) ######################################################################
 
         # if profit == None, then nothing changed, if it is zero to 80, then a cat left
         return profit
