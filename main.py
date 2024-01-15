@@ -5,7 +5,6 @@ from json import JSONDecodeError
 import math
 from enum import Enum
 
-import catmanager
 from button import Button
 from catmanager import CatManager
 from encoders import CMEncoder
@@ -84,7 +83,7 @@ CM = CatManager()
 # make an Encoder
 Encoder = CMEncoder()
 
-# load images
+# load icon images
 BG = pygame.image.load(os.path.join("Assets", "FelineFrenzyBackground.png"))
 CAT_BOOK_BG = pygame.image.load(os.path.join("Assets", "cat_book_wallpaper.png"))
 PLACE_TOY_BG = pygame.transform.scale(pygame.image.load(os.path.join("Assets", "place_wallpaper.png")), (900, 600))
@@ -103,6 +102,9 @@ feather_stick_image = pygame.image.load(os.path.join("Assets", "feather_on_a_sti
 tube_image = pygame.image.load(os.path.join("Assets", "tube.png"))
 cat_tree_image = pygame.image.load(os.path.join("Assets", "cat_tree.png"))
 catnip_forest_image = pygame.image.load(os.path.join("Assets", "catnip_forest.png"))
+dax_mouse1 = pygame.image.load(os.path.join("Assets", "DaxMice", "DaxMouse1.png"))
+dax_mouse2 = pygame.image.load(os.path.join("Assets", "DaxMice", "DaxMouse2.png"))
+dax_mouse3 = pygame.image.load(os.path.join("Assets", "DaxMice", "DaxMouse3.png"))
 
 # add place buttons
 place_image = pygame.transform.scale(pygame.image.load(os.path.join("Assets", "plus_button.png")), (150, 150))
@@ -116,6 +118,7 @@ PRICES = {
     "crawl tube": 185,
     "cat palace": 250,
     "catnip forest": 390,
+    "Daximouse Chime": 500,
 }
 
 ITEM_IMAGE_LINK = {
@@ -127,6 +130,11 @@ ITEM_IMAGE_LINK = {
     "crawl tube": tube_image,
     # "cat palace": cat_tree_image,
     # "catnip forest": 39,
+    # "Daximouse Chime": {
+        # 1: dax_mouse1,
+        # 2: dax_mouse2,
+        # 3: dax_mouse3,
+    #   }
 }
 
 ITEMS = [key for key, value in PRICES.items()]
