@@ -30,16 +30,16 @@ Including: Cat Tree, Catnip Forest, and DAXIMOUSE CHIME!
 Daximouse Chime is an animated mouse toy with my friend's (Dax) face on it.
 
 #### Music!
-The Feline Frenzy Theme by Ryan Moon (me) now plays in the background. It can be paused/unpaused by pressing the 'm' button.
+The [Feline Frenzy Theme](https://soundcloud.com/ryan-moon-895940782/feline-frenzy-theme) by Ryan Moon (me) now plays in the background. It can be paused/unpaused by pressing the 'm' button.
 
 ### Credits
-cool_cat_coby: Unsplash: Raoul Droog
-curious_cat: Unsplash: Hang Niu
-happy_cat: Pixabay: Edurs34
-sus_cat: Pixabay: ptra
+cool_cat_coby: Unsplash: Raoul Droog <br />
+curious_cat: Unsplash: Hang Niu <br />
+happy_cat: Pixabay: Edurs34 <br />
+sus_cat: Pixabay: ptra <br />
 
-carboard image: Pexels: Aleksandar Pasaric
-teddy bear image: Pixabay: Pezibear
+carboard image: Pexels: Aleksandar Pasaric <br />
+teddy bear image: Pixabay: Pezibear <br />
 
 Music: Feline Frenzy Theme by Ryan Moon (me)
 [CC BY-NC-ND 3.0 DEED](https://creativecommons.org/licenses/by-nc-nd/3.0/)
