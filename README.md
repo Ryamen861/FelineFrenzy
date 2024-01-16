@@ -42,5 +42,5 @@ carboard image: Pexels: Aleksandar Pasaric <br />
 teddy bear image: Pixabay: Pezibear <br />
 
 Music: Feline Frenzy Theme by Ryan Moon (me)
-[CC BY-NC-ND 3.0 DEED](https://creativecommons.org/licenses/by-nc-nd/3.0/)
+[CC BY-NC-ND 3.0 DEED](https://creativecommons.org/licenses/by-nc-nd/3.0/) <br />
 Check the song out on [soundcloud!](https://soundcloud.com/ryan-moon-895940782/feline-frenzy-theme)
