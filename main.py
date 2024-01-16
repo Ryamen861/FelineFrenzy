@@ -29,7 +29,7 @@ class WindowState(Enum):
 
 
 win_state = WindowState.HOME
-prev_store_state = 0
+prev_store_state = None
 
 FONT = pygame.font.SysFont("comicsans", 40)
 S_FONT = pygame.font.SysFont("comicsans", 29)
@@ -42,7 +42,7 @@ LEVEL = 0
 LEVELS = [20, 40, 80, 140, 220, 320, 440, 580, 700]
 XP = 0
 # CURR_SCREEN = None
-FISH_COINS = 0
+FISH_COINS = 500
 
 # colors
 SECONDARY_COLOR = (244, 229, 97)
@@ -372,33 +372,25 @@ def recover():
                                 CM.unlocked_cats.append(cat_object)
                                 break
 
-                # restore current cats along with their xy coors
-                names_of_current_cats = data["current cats"]        # dictionary
-                for spot_object_id, cat_name in names_of_current_cats.items():
-                    for cat_object in CM.all_cats:
-                        if cat_name == cat_object.name:
+                # # restore current cats along with their xy coors
+                # names_of_current_cats = data["current cats"]        # dictionary
+                # for spot_object_id, curr_cat_name in names_of_current_cats.items():
+                #     for cat_object in CM.all_cats:
+                #         if curr_cat_name == cat_object.name:
 
-                            spot_object = ""
+                #             spot_object = None
 
-                            for spot_o in CM.SM.spots:
-                                if spot_o.id == int(spot_object_id):
-                                    spot_object = spot_o
-                                    break
+                #             for spot_o in CM.SM.spots:
+                #                 if spot_o.id == int(spot_object_id):
+                #                     spot_object = spot_o
+                #                     spot_object.cat_in_it = cat_object.name
+                #                     spot_object.is_filled = True
+                #                     # don't worry about restoring the toy, that's done in "#restore toys"
+                #                     break
 
-                            cat_object.xy = spot_object.coor
-                            CM.current_cats.append(cat_object)
-                            break
-
-                # restore cats_met
-                names_of_cats_met = data["cats met"]                 # list of strings
-                for name in names_of_cats_met:
-                    for cat_object in CM.all_cats:
-                        if name == cat_object.name:
-                            CM.cats_met.append(cat_object)
-                            break
-
-                CM.SM.curr_items = data["items on set"]        # list of strings
-                CM.SM.unlocked_items = data["bought items"]    # list of strings
+                #             cat_object.xy = spot_object.coor
+                #             CM.current_cats.append(cat_object)
+                #             break
 
                 # restore toys
                 spots_item_link = data["spots with their items"]  # dictionary
@@ -409,20 +401,42 @@ def recover():
                                 spot_object.toy = toy
                                 break
 
+                # restore cats_met, curr_items, and bought items
+                cats_met = data["cats met"]                 # should be list of cat objects
+                for cat_str in cats_met:
+                    for cat_object in CM.all_cats:
+                        if cat_str == cat_object.name:
+                            CM.cats_met.append(cat_object)
+
+                CM.SM.curr_items = data["items on set"]        # list of strings
+                CM.SM.unlocked_items = data["bought items"]    # list of strings
+
                 # restore cats with their spots
                 spots_cat_link = data["spots with their cats"]    # dictionary
-                for k, v in spots_cat_link.items():
-                    for spot_object in CM.SM.spots:
-                        if int(k) == spot_object.id:
-                            spot_object.cat_in_it = v
-                            spot_object.is_filled = True
-                            break
+                for spot_id, cat_str in spots_cat_link.items():   # ex. "0": "Sarah Cat"
+                    if cat_str != "":
+                        for cat in CM.all_cats:
+                            if cat.name == cat_str:
+                                for spot_object in CM.SM.spots:
+                                    if int(spot_id) == spot_object.id: # find the spot object
+                                        spot_object.cat_in_it = cat_str
+                                        spot_object.is_filled = True
+                                        cat.xy = spot_object.coor
+                                        CM.current_cats.append(cat)
+                                        break
+                                break
+                    else:
+                        for spot_object in CM.SM.spots:
+                            if int(spot_id) == spot_object.id: # find the spot object
+                                spot_object.cat_in_it = ""
+                                spot_object.is_filled = False
+                                break
 
                 # cats with their times/birthdays
                 cats_time_link = data["cats with their times"]
                 for cat_name, cat_stay_time in cats_time_link.items():
-                    for cat_object in CM.current_cats:
-                        if cat_name == cat_object.name:
+                    for cat_object in CM.all_cats:
+                        if cat_name == cat_object.name: ############################
                             cat_object.stay_time = cat_stay_time
                             cat_object.birthday = 0
 
@@ -797,9 +811,6 @@ def main():
         update_coins()
         XP += math.floor(new_leave_val / 2)
         update_XP()
-
-        # update cats
-        CM.cat_placer(WIN)
 
         # check for a new level
         check_new_level()

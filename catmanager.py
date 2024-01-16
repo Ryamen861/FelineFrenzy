@@ -41,7 +41,8 @@ class SpotManager:
         """returns a list of open spot_objects that a new cat can be placed"""
         num_of_open_spots = 0
         for spot in self.spots:
-            if not spot.is_filled and spot.toy != "":
+            print(f"spot id {spot.id}, filled {spot.is_filled}, cat in it {spot.cat_in_it}, toy in it {spot.toy}")
+            if not spot.is_filled and spot.toy != "": # if it is not occupied, but a toy exists there
                 num_of_open_spots += 1
         return num_of_open_spots
 
@@ -105,7 +106,7 @@ class Cat:
         self.name = name
         self.image = image
 
-        # not permanent
+        # variable
         self.xy = ()
         self.birthday = None
         self.stay_time = None
@@ -153,10 +154,8 @@ class CatManager:
     def leave_cat(self):
         profit = 0
         saved_current_cats = self.current_cats.copy()
-
         for cat in saved_current_cats:
-            if cat.birthday + cat.stay_time >= self.curr_time:
-                print("bye cat")
+            if cat.birthday + cat.stay_time <= self.curr_time:
                 # take the cat out, reset cat
                 self.current_cats.remove(cat)
                 cat.xy = ()
@@ -178,19 +177,17 @@ class CatManager:
     def make_new_cat(self):
         """Creates a new random cat to show up randomly, decide where it will chill, decide when it leaves"""
         profit_XP = None
-        print("here")
-        if random.choices(COIN, weights=[1, 9])[0]:  # make sure the chances say yes
-            print("there")
-            if len(self.current_cats) < 4:  # make sure we aren't adding more cats than we can have
-                print("everywhere")
-                if len(self.current_cats) != len(self.unlocked_cats):
-                    print("Here, let me see the mayor")
+        if random.choices(COIN, weights=[1, 19])[0]:  # make sure the chances say yes
+            print(f"Length of current cats: {len(self.current_cats)}")
+            if len(self.current_cats) < 4:  # make sure we aren't adding more cats than we can have (we only have 4 spots)
+                print(f"Length of unlocked cats: {len(self.unlocked_cats)}")
+                if len(self.current_cats) < len(self.unlocked_cats):
                     # if all the unlocked cats came, there shouldn't be more coming
-                    print("give me the chair")
+                    print(f"num of open spots: {self.SM.get_num_open_spots()}")
                     if self.SM.get_num_open_spots() > 0:  # if there are any open spots left
-                        print("we have entered the final layer")
                         cat_chosen = False
                         while not cat_chosen:
+                            print("looking for new cat")
 
                             new_cat = random.choice(self.unlocked_cats)
                             # new cat is a cat object
@@ -212,7 +209,7 @@ class CatManager:
 
                                 # decide how long the cat will stay there, multiplying by 1000 bc pygame takes it in milliseconds
                                 new_cat.stay_time = random.randint(10 * 1000, 40 * 1000)
-                                print(new_cat.stay_time)
+                                # print(new_cat.stay_time)
 
                                 # reset XP
                                 profit_XP = cats_XP[new_cat.name]
