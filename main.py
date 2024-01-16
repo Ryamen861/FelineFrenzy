@@ -31,6 +31,11 @@ class WindowState(Enum):
 win_state = WindowState.HOME
 prev_store_state = None
 
+# music player
+pygame.mixer.init()
+pygame.mixer.music.load(os.path.join("Assets", "Feline Frenzy Theme.wav"))
+is_playing = True
+
 FONT = pygame.font.SysFont("comicsans", 40)
 S_FONT = pygame.font.SysFont("comicsans", 29)
 WIDTH, HEIGHT = 900, 600
@@ -42,7 +47,7 @@ LEVEL = 0
 LEVELS = [20, 40, 80, 140, 220, 320, 440, 580, 700]
 XP = 0
 # CURR_SCREEN = None
-FISH_COINS = 500
+FISH_COINS = 0
 
 # colors
 SECONDARY_COLOR = (244, 229, 97)
@@ -722,6 +727,7 @@ def main():
     global FISH_COINS
     global daximouse_animation_prev_time
     global daximouse_tick
+    global is_playing
 
     try:
         recover()
@@ -733,6 +739,7 @@ def main():
 
     # to draw the home screen
     home_button_func()
+    pygame.mixer.music.play(-1)
 
     while run:
         clock.tick(FPS)
@@ -829,8 +836,14 @@ def main():
                 run = False
                 pygame.quit()
 
-            # if event.type == pygame.KEYDOWN:
-            #     pass
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_m:
+                    if is_playing:
+                        pygame.mixer.music.pause()
+                        is_playing = False
+                    else:
+                        pygame.mixer.music.unpause()
+                        is_playing = True
 
         pygame.display.update()
 
