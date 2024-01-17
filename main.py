@@ -248,7 +248,7 @@ def item_placer():
     for spot_object in CM.SM.spots:
         if spot_object.toy != "" and spot_object.id != 0:
 
-            new_image = 1
+            new_image = None
 
             match spot_object.toy:
                 case "plastic bottle":
@@ -268,29 +268,6 @@ def item_placer():
             new_x = x - new_image.get_width()/2
             new_y = y - new_image.get_height()/2
             WIN.blit(new_image, (new_x, new_y))
-
-
-    # for item in CM.SM.curr_items:
-
-    #     if item != "default box":
-
-    #         if item == "plastic bottle":
-    #             new_image = pygame.transform.scale(water_bottle_image, (150, 75))
-    #         elif item == "scratchy cardboard":
-    #             new_image = pygame.transform.scale(cardboard_image, (180, 117))
-    #         elif item == "plush toy":
-    #             new_image = pygame.transform.scale(plush_toy_image, (150, 100))
-    #         elif item == "cat track":
-    #             new_image = pygame.transform.scale(cat_track_image, (150, 113))
-    #         else:
-    #             new_image = ITEM_IMAGE_LINK[item]
-
-    #         for spot_object in CM.SM.spots:
-    #             if spot_object.item_name == item:
-    #                 x, y = spot_object.coor
-    #                 new_x = x - new_image.get_width()/2
-    #                 new_y = y - new_image.get_height()/2
-    #                 WIN.blit(new_image, (new_x, new_y))
 
 
 def plus_button_func(place_description, item):
@@ -441,7 +418,7 @@ def recover():
                 cats_time_link = data["cats with their times"]
                 for cat_name, cat_stay_time in cats_time_link.items():
                     for cat_object in CM.all_cats:
-                        if cat_name == cat_object.name: ############################
+                        if cat_name == cat_object.name:
                             cat_object.stay_time = cat_stay_time
                             cat_object.birthday = 0
 
