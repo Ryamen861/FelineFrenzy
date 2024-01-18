@@ -33,7 +33,7 @@ Daximouse Chime is an animated mouse toy with my friend's (Dax) face on it.
 The [Feline Frenzy Theme](https://soundcloud.com/ryan-moon-895940782/feline-frenzy-theme) by Ryan Moon (me) now plays in the background. It can be paused/unpaused by pressing the 'm' button.
 
 ### How to Download/Play
-*Only available on Windows (for now...)
+*Only available on Windows (for now...) <br />
 Download Zip <br />
 Unzip <br />
 Run the main.exe found in the 'dist' folder
