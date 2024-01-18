@@ -57,3 +57,4 @@ ESTIMATED TIMELINE
     day19 (1/15/24) Made second store page, added more toys,finished Animation of Daximouse Chime
     day20 (1/16/24) Fix bug of time, cat birthdays, much more other bugs in encoding, add music
     add weather? (snow background and snow animation during winter months?)
+    make the Daximouse Chime show up on TOP of the cat?
