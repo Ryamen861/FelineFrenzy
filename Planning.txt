@@ -58,3 +58,5 @@ ESTIMATED TIMELINE
     day20 (1/16/24) Fix bug of time, cat birthdays, much more other bugs in encoding, add music
     add weather? (snow background and snow animation during winter months?)
     make the Daximouse Chime show up on TOP of the cat?
+
+    Add different music for shop?
